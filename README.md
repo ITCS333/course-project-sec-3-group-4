@@ -22,7 +22,7 @@ The website covers five functional areas, each assigned to one team member.
 | Task | Description | Student ID | GitHub Username |
 |------|-------------|------------|-----------------|
 | 1 | Home Page, Authentication & User Management | | |
-| 2 | Course Resources | | |
+| 2 | Course Resources |202403087 |Abdelrahman Nasser Altantawi |
 | 3 | Weekly Breakdown |202200507 |Bilal Mohammad Tofeeq |
 | 4 | Assignments |202005219 |Mohammed Nawaf Abdulla Saleem |
 | 5 | Discussion Board | | |
