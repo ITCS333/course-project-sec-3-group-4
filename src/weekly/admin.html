@@ -99,7 +99,7 @@
                            weeks table. admin.js will split the textarea
                            value on newlines and send it as an array. -->
 <div>
-            <label for="week-links">Exercises / Resources Links</label>
+            <label for="week-links">Exercises / Resources Links🔑</label>
             <textarea
               id="week-links"
               name="week-links"
@@ -114,7 +114,7 @@
                            change the button text to "Update Week" and
                            store the id being edited in a data attribute. -->
   <div>
-            <button id="add-week" type="submit">Add Week</button>
+            <button id="add-week" type="submit">Add Week🚀</button>
           </div>
                 <!-- End of <fieldset> -->
             <!-- End of <form> -->
@@ -128,10 +128,13 @@
              Section 2: Existing Weekly Entries
              ============================================================ -->
         <!-- TODO: Create a <section> to display the current list of weeks. -->
+  <section>
 
             <!-- TODO: Add a sub-heading <h2> "Current Weekly Breakdown". -->
+    <h2>📚Current Weekly Breakdown</h2>
 
             <!-- TODO: Create a <table id="weeks-table">. -->
+    <table id="weeks-table">
 
                 <!-- TODO: Create a <thead> with a <tr> containing <th>
                      elements:
@@ -141,12 +144,20 @@
                      - "Actions"
                      The columns must match the data rendered by
                      admin.js createWeekRow(). -->
+      <thead>
+          <tr>
+            <th scope="col">Week Title</th>
+            <th scope="col">Start Date</th>
+            <th scope="col">Description</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
 
                 <!-- TODO: Create a <tbody id="weeks-tbody">.
                      The id is required by admin.js so it can inject
                      <tr> rows. admin.js will clear and repopulate this
                      tbody whenever the data changes. -->
-
+<tbody id="weeks-tbody">
                 <!-- admin.js will inject rows here. Each row follows
                      this structure (do NOT hardcode real data):
 
@@ -162,10 +173,13 @@
 
                 The data-id attribute holds the integer id from the
                 weeks table (primary key). -->
-
+</tbody>
             <!-- End of <table> -->
+</table>
         <!-- End of list <section> -->
+  </section>
 
     <!-- End of <main> -->
+</main>
 </body>
 </html>
