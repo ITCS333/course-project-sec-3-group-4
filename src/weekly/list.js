@@ -11,11 +11,34 @@
   3. Implement the TODOs below.
 */
 
+
 // --- Element Selections ---
 // TODO: Select the section for the week list using its id 'week-list-section'.
-
+const weekListSection = document.getElementById('week-list-section');
 // --- Functions ---
+function createWeekArticle({ id, title, startDate, description }) {
+    const article = document.createElement('article');
 
+    const heading = document.createElement('h2');
+    heading.textContent = `Week ${id}: ${title}`;
+
+    const date = document.createElement('p');
+    date.innerHTML = `<strong>Starts on:</strong> ${startDate}`;
+
+    const desc = document.createElement('p');
+    desc.textContent = description;
+
+    const anchor = document.createElement('a');
+    anchor.href = `details.html?id=${id}`;
+    anchor.textContent = 'View Details & Discussion';
+
+    article.appendChild(heading);
+    article.appendChild(date);
+    article.appendChild(desc);
+    article.appendChild(anchor);
+
+    return article;
+}
 /**
  * TODO: Implement createWeekArticle.
  *
