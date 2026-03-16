@@ -65,7 +65,30 @@ function createWeekArticle({ id, title, startDate, description }) {
  * the weeks table) so that details.js can read the id from the URL.
  */
 function createWeekArticle(week) {
-  // ... your implementation here ...
+  const weekListSection = document.getElementById('week-list-section');
+  function createWeekArticle(week) {
+  const article = document.createElement('article');
+
+  const heading = document.createElement('h2');
+  heading.textContent = `Week ${week.id}: ${week.title}`;
+
+  const date = document.createElement('p');
+  date.innerHTML = `<strong>Starts on:</strong> ${week.startDate}`;
+
+  const description = document.createElement('p');
+  description.textContent = week.description;
+
+  const link = document.createElement('a');
+  link.href = `details.html?id=${week.id}`;
+  link.textContent = 'View Details & Discussion';
+
+  article.appendChild(heading);
+  article.appendChild(date);
+  article.appendChild(description);
+  article.appendChild(link);
+
+  return article;
+}
 }
 
 /**
