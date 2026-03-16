@@ -29,7 +29,7 @@
     <!-- TODO: Create a <header> containing an <h1>
          "Manage Weekly Breakdown". -->
   <header>
-<h1>Manage Weekly Breakdown</h1>
+<h1>📋Manage Weekly Breakdown</h1>
   </header>
     <!-- TODO: Create the <main> content area. -->
 <main>
@@ -37,30 +37,59 @@
              Section 1: Add / Edit Week Form
              ============================================================ -->
         <!-- TODO: Create a <section> for the form. -->
-
+<section>
             <!-- TODO: Add a sub-heading <h2> "Add a New Week". -->
-
+<h2>➕Add a New Week</h2>
             <!-- TODO: Create a <form id="week-form"> (action can be "#").
                  The id is required by admin.js. -->
-
+<form id="week-form" action="#" method="post">
                 <!-- TODO: Use a <fieldset> to group the form controls. -->
                     <!-- TODO: Add a <legend>, e.g., "Weekly Details". -->
-
+<fieldset>
+          <legend>🗓️Weekly Details</legend>
                     <!-- TODO: Add a <label> and <input> for the week title.
                          - label for="week-title"
                          - input id="week-title", type="text", required
                          - Placeholder: "Week 1: Introduction to HTML" -->
-
+<div>
+            <label for="week-title">🏷️Week Title</label>
+            <input
+              id="week-title"
+              name="week-title"
+              type="text"
+              required
+              placeholder="Week 1: Introduction to HTML"
+            >
+          </div>
                     <!-- TODO: Add a <label> and <input> for the start date.
                          - label for="week-start-date"
                          - input id="week-start-date", type="date", required
                          - Maps to the start_date column in the weeks table. -->
+
+  <div>
+            <label for="week-start-date">📅Start Date</label>
+            <input
+              id="week-start-date"
+              name="week-start-date"
+              type="date"
+              required
+            >
+          </div>
 
                     <!-- TODO: Add a <label> and <textarea> for the week
                          description.
                          - label for="week-description"
                          - textarea id="week-description", rows="5"
                          - Maps to the description column in the weeks table. -->
+  <div>
+            <label for="week-description">Description &amp; Notes🔑</label>
+            <textarea
+              id="week-description"
+              name="week-description"
+              rows="5"
+            >
+            </textarea>
+          </div>
 
                     <!-- TODO: Add a <label> and <textarea> for resource links
                          (one URL per line).
@@ -69,16 +98,30 @@
                          - Maps to the links column (JSON array) in the
                            weeks table. admin.js will split the textarea
                            value on newlines and send it as an array. -->
-
+<div>
+            <label for="week-links">Exercises / Resources Links</label>
+            <textarea
+              id="week-links"
+              name="week-links"
+              rows="3"
+            >
+            </textarea>
+          </div>
                     <!-- TODO: Add a submit <button>.
                          - id="add-week", type="submit"
                          - Text: "Add Week"
                          - When the form is in edit mode, admin.js will
                            change the button text to "Update Week" and
                            store the id being edited in a data attribute. -->
+  <div>
+            <button id="add-week" type="submit">Add Week</button>
+          </div>
                 <!-- End of <fieldset> -->
             <!-- End of <form> -->
         <!-- End of form <section> -->
+  </fieldset>
+        </form>
+    </section>
 
 
         <!-- ============================================================
