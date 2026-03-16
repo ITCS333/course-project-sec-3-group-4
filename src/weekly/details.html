@@ -8,13 +8,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
     <!-- TODO: Add <meta> tags for charset (UTF-8) and viewport
          (width=device-width, initial-scale=1.0). -->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0" >
     <!-- TODO: Add a <title>, e.g., "Week Details". -->
-
+<title>📅Week Details</title>
     <!-- TODO: Link to your CSS framework or stylesheet. -->
-
+<link rel="stylesheet" href="styles.css">
     <!-- Required: link details.js with defer. -->
     <script src="details.js" defer></script>
 </head>
@@ -24,34 +25,38 @@
          Inside it, add an <h1 id="week-title">.
          details.js will set its textContent to the week's title.
          Leave it empty for now. -->
-
+<header>
+  <h1 id="week-title"></h1>
+</header>
     <!-- TODO: Create the <main> content area. -->
-
+<main>
         <!-- ============================================================
              Section 1: Weekly Information
              ============================================================ -->
         <!-- TODO: Use an <article> to display the main weekly information. -->
-
+<article>
             <!-- TODO: Add a <p id="week-start-date">.
                  details.js will set it to "Starts on: YYYY-MM-DD"
                  using the start_date column from the weeks table. -->
-
+<p id="week-start-date"></p>
             <!-- TODO: Add a <h2> "Description & Notes". -->
-
+<h2>Description & Notes</h2>
             <!-- TODO: Add a <p id="week-description">.
                  details.js will set its textContent to the week's
                  description from the weeks table. -->
+  <p id="week-description"></p>
 
             <!-- TODO: Add a <h2> "Exercises & Resources". -->
+  <h2>Exercises & Resources</h2>
 
             <!-- TODO: Add a <ul id="week-links-list">.
                  details.js will populate this list from the links
                  column in the weeks table. That column is a JSON-encoded
                  array of URL strings. Each URL becomes a <li><a> item.
                  Leave the list empty here. -->
-
+<ul id="week-links-list"></ul>
         <!-- End of <article> -->
-
+</article>
 
         <!-- ============================================================
              Section 2: Discussion Forum
