@@ -16,29 +16,7 @@
 // TODO: Select the section for the week list using its id 'week-list-section'.
 const weekListSection = document.getElementById('week-list-section');
 // --- Functions ---
-function createWeekArticle({ id, title, startDate, description }) {
-    const article = document.createElement('article');
 
-    const heading = document.createElement('h2');
-    heading.textContent = `Week ${id}: ${title}`;
-
-    const date = document.createElement('p');
-    date.innerHTML = `<strong>Starts on:</strong> ${startDate}`;
-
-    const desc = document.createElement('p');
-    desc.textContent = description;
-
-    const anchor = document.createElement('a');
-    anchor.href = `details.html?id=${id}`;
-    anchor.textContent = 'View Details & Discussion';
-
-    article.appendChild(heading);
-    article.appendChild(date);
-    article.appendChild(desc);
-    article.appendChild(anchor);
-
-    return article;
-}
 /**
  * TODO: Implement createWeekArticle.
  *
@@ -65,15 +43,13 @@ function createWeekArticle({ id, title, startDate, description }) {
  * the weeks table) so that details.js can read the id from the URL.
  */
 function createWeekArticle(week) {
-  const weekListSection = document.getElementById('week-list-section');
-  function createWeekArticle(week) {
   const article = document.createElement('article');
 
   const heading = document.createElement('h2');
   heading.textContent = `Week ${week.id}: ${week.title}`;
 
   const date = document.createElement('p');
-  date.innerHTML = `<strong>Starts on:</strong> ${week.startDate}`;
+  date.innerHTML = `<strong>Starts on:</strong> ${week.start_date}`;
 
   const description = document.createElement('p');
   description.textContent = week.description;
@@ -89,8 +65,6 @@ function createWeekArticle(week) {
 
   return article;
 }
-}
-
 /**
  * TODO: Implement loadWeeks (async).
  *
@@ -105,7 +79,24 @@ function createWeekArticle(week) {
  *    - Append the returned <article> to the list section.
  */
 async function loadWeeks() {
-  // ... your implementation here ...
+  try {
+    const response = await fetch('./api/index.php');
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error('API returned an error');
+    }
+
+    weekListSection.innerHTML = '';
+
+    result.data.forEach(week => {
+      const article = createWeekArticle(week);
+      weekListSection.appendChild(article);
+    });
+  } catch (error) {
+    console.error('Failed to load weeks:', error);
+    weekListSection.innerHTML = '<p>Could not load weekly breakdown.</p>';
+  }
 }
 
 // --- Initial Page Load ---
