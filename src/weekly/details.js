@@ -173,8 +173,36 @@ function renderComments() {
  *    - Clear newCommentInput.
  */
 async function handleAddComment(event) {
-  // ... your implementation here ...
+  event.preventDefault();
+
+  const commentText = newCommentInput.value.trim();
+  if (commentText === "") return;
+
+  try {
+    const response = await fetch("./api/index.php?action=comment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        week_id: currentWeekId,
+        author: "Student",
+        text: commentText,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success === true) {
+      currentComments.push(result.data);
+      renderComments();
+      newCommentInput.value = "";
+    } else {
+      console.error("Failed to add comment:", result);
+    }
+  } catch (error) {
+    console.error("Error posting comment:", error);
+  }
 }
+
 
 /**
  * TODO: Implement initializePage (async).
@@ -201,8 +229,40 @@ async function handleAddComment(event) {
  *    - Set weekTitle.textContent = "Week not found."
  */
 async function initializePage() {
-  // ... your implementation here ...
+  currentWeekId = getWeekIdFromURL();
+
+  if (!currentWeekId) {
+    weekTitle.textContent = "Week not found.";
+    return;
+  }
+
+  try {
+    const [weekRes, commentsRes] = await Promise.all([
+      fetch(`./api/index.php?id=${currentWeekId}`),
+      fetch(`./api/index.php?action=comments&week_id=${currentWeekId}`)
+    ]);
+
+    const weekResult = await weekRes.json();
+    const commentsResult = await commentsRes.json();
+
+    if (!weekResult.success) {
+      weekTitle.textContent = "Week not found.";
+      return;
+    }
+
+    const week = weekResult.data;
+    currentComments = commentsResult.success ? commentsResult.data : [];
+
+    renderWeekDetails(week);
+    renderComments();
+    commentForm.addEventListener("submit", handleAddComment);
+
+  } catch (error) {
+    weekTitle.textContent = "Error loading week data.";
+    console.error("Initialization error:", error);
+  }
 }
+
 
 // --- Initial Page Load ---
 initializePage();
