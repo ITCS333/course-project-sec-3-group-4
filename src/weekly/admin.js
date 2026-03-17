@@ -287,10 +287,11 @@ async function handleTableClick(event) {
     submitButton.dataset.editId = idToEdit;
 
     // Optional: scroll to form
+    if (typeof window.scrollTo === "function") {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 }
-
+}
 
 /**
  * TODO: Implement loadAndInitialize (async).
@@ -327,9 +328,15 @@ async function loadAndInitialize() {
 
   renderTable();
 
-  document.querySelector("#week-form").addEventListener("submit", handleAddWeek);
-  document.querySelector("#weeks-table-body").addEventListener("click", handleTableClick);
-}
+  const weekForm = document.querySelector("#week-form");
+  if (weekForm) {
+    weekForm.addEventListener("submit", handleAddWeek);
+  }
 
+  const weeksTableBody = document.querySelector("#weeks-tbody");
+  if (weeksTableBody) {
+    weeksTableBody.addEventListener("click", handleTableClick);
+}
+}
 // --- Initial Page Load ---
 loadAndInitialize();
