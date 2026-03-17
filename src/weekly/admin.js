@@ -29,14 +29,20 @@
 // --- Global Data Store ---
 // Holds the weeks currently displayed in the table.
 let weeks = [];
-
+let editingWeekId = null;
 // --- Element Selections ---
 // TODO: Select the week form by id 'week-form'.
 
 // TODO: Select the weeks table body by id 'weeks-tbody'.
+const weekForm = document.getElementById("week-form");
+const weeksTableBody = document.getElementById("weeks-tbody");
 
 // --- Functions ---
-
+const titleInput = document.getElementById("week-title");
+const dateInput = document.getElementById("week-start-date");
+const descInput = document.getElementById("week-description");
+const linksInput = document.getElementById("week-links");
+const submitButton = document.getElementById("add-week");
 /**
  * TODO: Implement createWeekRow.
  *
@@ -54,7 +60,38 @@ let weeks = [];
  *      The data-id holds the integer primary key from the weeks table.
  */
 function createWeekRow(week) {
-  // ... your implementation here ...
+    const tr = document.createElement("tr");
+
+    const titleTd = document.createElement("td");
+    titleTd.textContent = week.title;
+
+    const dateTd = document.createElement("td");
+    dateTd.textContent = week.start_date;
+
+    const descTd = document.createElement("td");
+    descTd.textContent = week.description;
+
+    const actionsTd = document.createElement("td");
+
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Edit";
+    editBtn.classList.add("edit-btn");
+    editBtn.setAttribute("data-id", week.id);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.classList.add("delete-btn");
+    deleteBtn.setAttribute("data-id", week.id);
+
+    actionsTd.appendChild(editBtn);
+    actionsTd.appendChild(deleteBtn);
+
+    tr.appendChild(titleTd);
+    tr.appendChild(dateTd);
+    tr.appendChild(descTd);
+    tr.appendChild(actionsTd);
+
+    return tr;
 }
 
 /**
