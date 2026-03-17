@@ -240,9 +240,57 @@ async function handleUpdateWeek(id, fields) {
  *    d. Change the submit button (#add-week) text to "Update Week"
  *       and set its data-edit-id attribute to the week's id.
  */
+
 async function handleTableClick(event) {
-  // ... your implementation here ...
+  const target = event.target;
+
+  // DELETE case
+  if (target.classList.contains("delete-btn")) {
+    const idToDelete = parseInt(target.dataset.id, 10);
+
+    try {
+      const response = await fetch(`./api/index.php?id=${idToDelete}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete week from server");
+      }
+
+      // Remove from local weeks array
+      weeks = weeks.filter((week) => week.id !== idToDelete);
+
+      // Re-render table
+      renderTable();
+    } catch (error) {
+      console.error("Error deleting week:", error);
+    }
+
+    return;
+  }
+
+
+  if (target.classList.contains("edit-btn")) {
+    const idToEdit = parseInt(target.dataset.id, 10);
+    const weekToEdit = weeks.find((week) => week.id === idToEdit);
+    if (!weekToEdit) return;
+
+    
+    document.querySelector("#week-title").value = weekToEdit.title || "";
+    document.querySelector("#week-start-date").value = weekToEdit.startDate || "";
+    document.querySelector("#week-description").value = weekToEdit.description || "";
+    document.querySelector("#week-links").value = (weekToEdit.links || []).join("\n");
+
+    // Update submit button
+    const submitButton = document.querySelector("#add-week");
+    submitButton.textContent = "Update Week";
+    submitButton.dataset.editId = idToEdit;
+
+    // Optional: scroll to form
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 }
+
 
 /**
  * TODO: Implement loadAndInitialize (async).
@@ -257,8 +305,30 @@ async function handleTableClick(event) {
  * 5. Attach a 'click' event listener to the weeks table body
  *    (calls handleTableClick — event delegation for edit and delete).
  */
+
 async function loadAndInitialize() {
-  // ... your implementation here ...
+  try {
+    const response = await fetch("./api/index.php");
+    if (!response.ok) {
+      throw new Error("Failed to fetch weeks from API");
+    }
+
+    const result = await response.json();
+    if (result.success && Array.isArray(result.data)) {
+      weeks = result.data;
+    } else {
+      weeks = [];
+      console.error("Unexpected API response:", result);
+    }
+  } catch (error) {
+    console.error("Error loading weeks:", error);
+    weeks = []; 
+  }
+
+  renderTable();
+
+  document.querySelector("#week-form").addEventListener("submit", handleAddWeek);
+  document.querySelector("#weeks-table-body").addEventListener("click", handleTableClick);
 }
 
 // --- Initial Page Load ---
