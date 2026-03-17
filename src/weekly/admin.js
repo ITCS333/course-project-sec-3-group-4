@@ -103,9 +103,15 @@ function createWeekRow(week) {
  * 3. For each week, call createWeekRow(week) and append the <tr>
  *    to the table body.
  */
+
 function renderTable() {
-  // ... your implementation here ...
+  weeksTableBody.innerHTML = "";
+  weeks.forEach((week) => {
+    const row = createWeekRow(week);
+    weeksTableBody.appendChild(row);
+  });
 }
+
 
 /**
  * TODO: Implement handleAddWeek (async).
@@ -129,9 +135,50 @@ function renderTable() {
  *        - Call renderTable().
  *        - Reset the form.
  */
+
 async function handleAddWeek(event) {
-  // ... your implementation here ...
+  event.preventDefault();
+
+  const title = titleInput.value.trim();
+  const start_date = dateInput.value.trim(); 
+  const description = descInput.value.trim();
+
+  const linksRaw = linksInput.value.trim();
+  const links = linksRaw
+    ? linksRaw.split("\n").map(link => link.trim()).filter(link => link)
+    : [];
+
+  if (!title) return;
+
+  const editId = submitButton.dataset.editId; 
+
+  if (editId) {
+    // --- Update existing week ---
+    await handleUpdateWeek(editId, { title, start_date, description, links });
+    delete submitButton.dataset.editId;
+    submitButton.textContent = "Add Week";
+  } else {
+    // --- Create new week ---
+    const res = await fetch("./api/index.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, start_date, description, links })
+    });
+    const result = await res.json();
+    if (result.success) {
+      weeks.push({
+        id: result.id, 
+        title,
+        start_date,
+        description,
+        links
+      });
+      renderTable();
+      event.target.reset();
+    }
+  }
 }
+
 
 /**
  * TODO: Implement handleUpdateWeek (async).
@@ -151,7 +198,26 @@ async function handleAddWeek(event) {
  *      its data-edit-id attribute.
  */
 async function handleUpdateWeek(id, fields) {
-  // ... your implementation here ...
+  const res = await fetch("./api/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, ...fields })
+  });
+
+  const result = await res.json();
+  if (result.success) {
+    // Update the matching entry in the global weeks array
+    const index = weeks.findIndex(w => w.id == id);
+    if (index !== -1) {
+      weeks[index] = { id: Number(id), ...fields };
+    }
+
+    renderTable();
+    weekForm.reset();
+
+    submitButton.textContent = "Add Week";
+    delete submitButton.dataset.editId;
+  }
 }
 
 /**
