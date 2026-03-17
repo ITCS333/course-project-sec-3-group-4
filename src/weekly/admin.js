@@ -277,7 +277,7 @@ async function handleTableClick(event) {
 
     
     document.querySelector("#week-title").value = weekToEdit.title || "";
-    document.querySelector("#week-start-date").value = weekToEdit.startDate || "";
+    document.querySelector("#week-start-date").value = weekToEdit.start_date || "";
     document.querySelector("#week-description").value = weekToEdit.description || "";
     document.querySelector("#week-links").value = (weekToEdit.links || []).join("\n");
 

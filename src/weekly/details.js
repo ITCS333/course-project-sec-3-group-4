@@ -89,25 +89,26 @@ const newCommentInput = document.getElementById("new-comment");
  *    (week.links is already a decoded string array from the API.)
  */
 function renderWeekDetails(week) {
-  // Title, date, description
-  weekTitle.textContent = week.title || "Untitled Week";
-  weekStartDate.textContent = "Starts on: " + (week.start_date || "");
-  weekDescription.textContent = week.description || "";
+  weekTitle.textContent = week.title;
 
-  weekLinks.innerHTML = "";
-  
-  if (Array.isArray(week.links) && week.links.length > 0) {
-    week.links.forEach(link => {
+  weekStartDate.textContent = "Starts on: " + week.start_date;
+
+  weekDescription.textContent = week.description;
+
+  weekLinksList.innerHTML = "";
+
+  if (Array.isArray(week.links)) {
+    week.links.forEach(url => {
+      const li = document.createElement("li");
       const a = document.createElement("a");
-      a.href = link;
-      a.textContent = link;
-      a.target = "_blank"; // optional: open in new tab
-      weekLinks.appendChild(a);
+      a.href = url;
+      a.textContent = url;
+      li.appendChild(a);
+      weekLinksList.appendChild(li);
     });
-  } else {
-    weekLinks.innerHTML = "<p>No links available.</p>";
   }
 }
+
 
 
 
