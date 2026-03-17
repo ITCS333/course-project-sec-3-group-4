@@ -89,20 +89,26 @@ const newCommentInput = document.getElementById("new-comment");
  *    (week.links is already a decoded string array from the API.)
  */
 function renderWeekDetails(week) {
-  weekTitle.textContent = week.title;
-  weekStartDate.textContent = "Starts on: " + week.start_date;
-  weekDescription.textContent = week.description;
+  // Title, date, description
+  weekTitle.textContent = week.title || "Untitled Week";
+  weekStartDate.textContent = "Starts on: " + (week.start_date || "");
+  weekDescription.textContent = week.description || "";
 
-  weekLinksList.innerHTML = "";
-  week.links.forEach((url) => {
-    const li = document.createElement("li");
-    const a = document.createElement("a");
-    a.href = url;
-    a.textContent = url;
-    li.appendChild(a);
-    weekLinksList.appendChild(li);
-  });
+  weekLinks.innerHTML = "";
+  
+  if (Array.isArray(week.links) && week.links.length > 0) {
+    week.links.forEach(link => {
+      const a = document.createElement("a");
+      a.href = link;
+      a.textContent = link;
+      a.target = "_blank"; // optional: open in new tab
+      weekLinks.appendChild(a);
+    });
+  } else {
+    weekLinks.innerHTML = "<p>No links available.</p>";
+  }
 }
+
 
 
 /**
