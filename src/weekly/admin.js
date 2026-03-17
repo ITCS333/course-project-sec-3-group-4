@@ -174,7 +174,7 @@ async function handleAddWeek(event) {
         links
       });
       renderTable();
-      event.target.reset();
+      weekForm.reset();
     }
   }
 }
