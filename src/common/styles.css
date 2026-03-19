@@ -1,1 +1,152 @@
 /* CSS Styles */
+/* ===========================
+   Global Styles
+   =========================== */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  /* Gradient background for a modern look */
+  background: linear-gradient(135deg, #f0f4ff, #e6f7f1);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===========================
+   Header
+   =========================== */
+header {
+  background: #4a90e2;
+  color: white;
+  padding: 1rem 2rem;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+/* ===========================
+   Main Content
+   =========================== */
+main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ===========================
+   Sections & Articles
+   =========================== */
+section, article {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+h2 {
+  color: #4a90e2;
+  margin-top: 0;
+}
+
+/* ===========================
+   Forms
+   =========================== */
+form fieldset {
+  border: 2px solid #4a90e2;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+form legend {
+  font-weight: bold;
+  color: #4a90e2;
+}
+
+form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+form input[type="text"],
+form input[type="date"],
+form textarea {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+form button {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+form button:hover {
+  background: #357ab8;
+}
+
+/* ===========================
+   Tables
+   =========================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #4a90e2;
+  color: white;
+}
+
+th, td {
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+/* ===========================
+   Links
+   =========================== */
+a {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   Comment Section
+   =========================== */
+#comment-list article {
+  border-bottom: 1px solid #eee;
+  padding: 1rem 0;
+}
+
+#comment-list footer {
+  font-size: 0.9rem;
+  color: #666;
+}
