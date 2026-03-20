@@ -124,177 +124,164 @@
   // ... your implementation here .
 
 let resources = [];
-let editId = null;
+let editingResourceId = null;
 
-const form = document.querySelector('#resource-form');
-const submitBtn = document.querySelector('#add-resource');
-const tableBody = document.querySelector('#resources-tbody ');
-
-let editMode = false;
-
-
-
-
+const resourceForm = document.getElementById("resource-form");
+const resourcesTableBody = document.getElementById("resources-tbody");
+const titleInput = document.getElementById("resource-title");
+const descInput = document.getElementById("resource-description");
+const linkInput = document.getElementById("resource-link");
+const submitButton = document.getElementById("add-resource");
 
 function createResourceRow(resource) {
-  const tr = document.createElement('tr');
+  const tr = document.createElement("tr");
 
-  const tdTitle = document.createElement('td');
-  tdTitle.textContent = resource.title;
+  const titleTd = document.createElement("td");
+  titleTd.textContent = resource.title;
 
-  const tdDesc = document.createElement('td');
-  tdDesc.textContent = resource.description;
+  const descTd = document.createElement("td");
+  descTd.textContent = resource.description;
 
-  const tdLink = document.createElement('td');
-  const a = document.createElement('a');
+  const linkTd = document.createElement("td");
+  const a = document.createElement("a");
   a.href = resource.link;
   a.textContent = resource.link;
   a.target = "_blank";
-  tdLink.appendChild(a);
+  linkTd.appendChild(a);
 
-  const tdActions = document.createElement('td');
+  const actionsTd = document.createElement("td");
 
-  const editBtn = document.createElement('button');
+  const editBtn = document.createElement("button");
   editBtn.textContent = "Edit";
-  editBtn.className = 'edit-btn';
+  editBtn.classList.add("edit-btn");
   editBtn.dataset.id = resource.id;
 
-  const deleteBtn = document.createElement('button');
+  const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "Delete";
-  deleteBtn.className = 'delete-btn';
+  deleteBtn.classList.add("delete-btn");
   deleteBtn.dataset.id = resource.id;
 
-  tdActions.appendChild(editBtn);
-  tdActions.appendChild(deleteBtn);
+  actionsTd.appendChild(editBtn);
+  actionsTd.appendChild(deleteBtn);
 
-  tr.appendChild(tdTitle);
-  tr.appendChild(tdDesc);
-  tr.appendChild(tdLink);
-  tr.appendChild(tdActions);
+  tr.appendChild(titleTd);
+  tr.appendChild(descTd);
+  tr.appendChild(linkTd);
+  tr.appendChild(actionsTd);
 
   return tr;
 }
 
 function renderTable() {
-
-  tableBody.innerHTML = '';
-
+  resourcesTableBody.innerHTML = "";
   resources.forEach((resource) => {
     const row = createResourceRow(resource);
-    tableBody.appendChild(row);
+    resourcesTableBody.appendChild(row);
   });
-
 }
 
 async function handleAddResource(event) {
   event.preventDefault();
 
-  const title = document.querySelector('#resource-title').value.trim();
-  const description = document.querySelector('#resource-description').value.trim();
-  const link = document.querySelector('#resource-link').value.trim();
+  const title = titleInput.value.trim();
+  const description = descInput.value.trim();
+  const link = linkInput.value.trim();
 
-  if (!title || !description || !link) return;
+  if (!title || !link) return;
 
-  if (editMode) {
-    const res = await fetch('./api/index.php', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: editId, title, description, link })
-    });
+  const editId = submitButton.dataset.editId;
 
-    const data = await res.json();
+  if (editId) {
 
-    if (data.success) {
-      resources = resources.map(r =>
-        r.id == editId ? { id: editId, title, description, link } : r
-      );
-
-      editMode = false;
-      editId = null;
-      submitBtn.textContent = "Add Resource";
-    }
+    await handleUpdateResource(editId, { title, description, link });
+    delete submitButton.dataset.editId;
+    submitButton.textContent = "Add Resource";
   } else {
-    const res = await fetch('./api/index.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, description, link })
+
+    const res = await fetch("./api/index.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, description, link }),
     });
-
-    const data = await res.json();
-
-    if (data.success) {
-      resources.push({
-        id: data.id,
-        title,
-        description,
-        link
-      });
+    const result = await res.json();
+    if (result.success) {
+      resources.push({ id: result.id, title, description, link });
+      renderTable();
+      resourceForm.reset();
     }
   }
+}
 
-  renderTable();
-  form.reset();
+async function handleUpdateResource(id, fields) {
+  const res = await fetch("./api/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, ...fields }),
+  });
+  const result = await res.json();
+  if (result.success) {
+    const index = resources.findIndex((r) => r.id == id);
+    if (index !== -1) {
+      resources[index] = { id: Number(id), ...fields };
+    }
+    renderTable();
+    resourceForm.reset();
+    submitButton.textContent = "Add Resource";
+    delete submitButton.dataset.editId;
+  }
 }
 
 async function handleTableClick(event) {
   const target = event.target;
 
-  
-  if (target.classList.contains('delete-btn')) {
-    const id = target.dataset.id;
-
-    const res = await fetch(`./api/index.php?id=${id}`, {
-      method: 'DELETE'
-    });
-
+  if (target.classList.contains("delete-btn")) {
+    const idToDelete = parseInt(target.dataset.id, 10);
+    const res = await fetch(`./api/index.php?id=${idToDelete}`, { method: "DELETE" });
     const data = await res.json();
-
     if (data.success) {
-      resources = resources.filter(r => r.id != id);
+      resources = resources.filter((r) => r.id !== idToDelete);
       renderTable();
     }
+    return;
   }
 
-  
-  if (target.classList.contains('edit-btn')) {
-    const id = target.dataset.id;
+  if (target.classList.contains("edit-btn")) {
+    const idToEdit = parseInt(target.dataset.id, 10);
+    const resourceToEdit = resources.find((r) => r.id === idToEdit);
+    if (!resourceToEdit) return;
 
-    const resource = resources.find(r => r.id == id);
+    titleInput.value = resourceToEdit.title || "";
+    descInput.value = resourceToEdit.description || "";
+    linkInput.value = resourceToEdit.link || "";
 
-    document.querySelector('#resource-title').value = resource.title;
-    document.querySelector('#resource-description').value = resource.description;
-    document.querySelector('#resource-link').value = resource.link;
+    submitButton.textContent = "Update Resource";
+    submitButton.dataset.editId = idToEdit;
 
-    editMode = true;
-    editId = id;
-    submitBtn.textContent = "Update Resource";
+    if (typeof window.scrollTo === "function") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 }
 
 async function loadAndInitialize() {
   try {
-    const tableBody = document.querySelector('#resources-tbody'); 
-    const res = await fetch('./api/index.php');
+    const res = await fetch("./api/index.php");
     const data = await res.json();
-
     if (data.success && Array.isArray(data.data)) {
       resources = data.data;
     } else {
       resources = [];
+      console.error("Unexpected API response:", data);
     }
-
-    renderTable();
-
-    form.addEventListener('submit', handleAddResource);
-
-    
-    if (tableBody) {
-      tableBody.addEventListener('click', handleTableClick);
-    }
-
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error("Error loading resources:", err);
+    resources = [];
   }
+
+  renderTable();
+
+  if (resourceForm) resourceForm.addEventListener("submit", handleAddResource);
+  if (resourcesTableBody) resourcesTableBody.addEventListener("click", handleTableClick);
 }
 
 loadAndInitialize();
