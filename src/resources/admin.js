@@ -44,10 +44,7 @@
  * 3. For each resource, call `createResourceRow()` and
  *    append the returned <tr> to the table body.
  */
-function renderTable(){
-    tableBody.innerHTML = '';
 
-}
 
   // ... your implementation here ...
 
