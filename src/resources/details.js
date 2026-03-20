@@ -18,8 +18,7 @@
 
 // --- Global Data Store ---
 // These will hold the data related to this specific resource.
-let currentResourceId = null;
-let currentComments = [];
+
 
 // --- Element Selections ---
 // TODO: Select all the elements you added IDs for in step 2.
@@ -33,9 +32,9 @@ let currentComments = [];
  * 2. Use the `URLSearchParams` object to get the value of the 'id' parameter.
  * 3. Return the id value (as a string).
  */
-function getResourceIdFromURL() {
+
   // ... your implementation here ...
-}
+
 
 /**
  * TODO: Implement the renderResourceDetails function.
@@ -48,9 +47,9 @@ function getResourceIdFromURL() {
  * 3. Set the `href` attribute of the link element (id="resource-link")
  *    to the resource's link.
  */
-function renderResourceDetails(resource) {
+
   // ... your implementation here ...
-}
+
 
 /**
  * TODO: Implement the createCommentArticle function.
@@ -60,9 +59,9 @@ function renderResourceDetails(resource) {
  * - A <footer> containing the comment's author
  *   (e.g., "Posted by: Ali Hassan").
  */
-function createCommentArticle(comment) {
+
   // ... your implementation here ...
-}
+
 
 /**
  * TODO: Implement the renderComments function.
@@ -72,9 +71,9 @@ function createCommentArticle(comment) {
  * 3. For each comment, call `createCommentArticle()` and
  *    append the returned <article> to the comment list container.
  */
-function renderComments() {
+
   // ... your implementation here ...
-}
+
 
 /**
  * TODO: Implement the handleAddComment function.
@@ -98,9 +97,9 @@ function renderComments() {
  * 6. Call `renderComments()` to refresh the comment list.
  * 7. Clear the textarea.
  */
-function handleAddComment(event) {
+
   // ... your implementation here ...
-}
+
 
 /**
  * TODO: Implement the initializePage function.
@@ -124,9 +123,127 @@ function handleAddComment(event) {
  *      (id="comment-form"), calling `handleAddComment`.
  * 6. If the resource is not found, display an error in the title element.
  */
-async function initializePage() {
+
   // ... your implementation here ...
-}
+
 
 // --- Initial Page Load ---
+
+
+/*
+  details.js
+  Handles displaying a single resource and its discussion comments.
+*/
+
+
+let currentResourceId = null;
+let currentComments = [];
+
+const titleEl = document.querySelector('#resource-title');
+const descEl = document.querySelector('#resource-description');
+const linkEl = document.querySelector('#resource-link');
+const commentListEl = document.querySelector('#comment-list');
+const commentFormEl = document.querySelector('#comment-form');
+const newCommentEl = document.querySelector('#new-comment');
+
+
+function getResourceIdFromURL() {
+  const query = window.location.search;
+  const params = new URLSearchParams(query);
+  return params.get('id');
+}
+
+function renderResourceDetails(resource) {
+  titleEl.textContent = resource.title;
+  descEl.textContent = resource.description;
+  linkEl.href = resource.link;
+}
+
+function createCommentArticle(comment) {
+  const article = document.createElement('article');
+
+  const p = document.createElement('p');
+  p.textContent = comment.text;
+
+  const footer = document.createElement('footer');
+  footer.textContent = `Posted by: ${comment.author}`;
+
+  article.appendChild(p);
+  article.appendChild(footer);
+
+  return article;
+}
+
+function renderComments() {
+  commentListEl.innerHTML = '';
+
+  currentComments.forEach(comment => {
+    const article = createCommentArticle(comment);
+    commentListEl.appendChild(article);
+  });
+}
+
+async function handleAddComment(event) {
+  event.preventDefault();
+
+  const commentText = newCommentEl.value.trim();
+  if (!commentText) return;
+
+  const res = await fetch('./api/index.php?action=comment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      resource_id: currentResourceId,
+      author: 'Student',
+      text: commentText
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    currentComments.push(data.data);
+    renderComments();
+    newCommentEl.value = '';
+  }
+}
+
+async function initializePage() {
+  currentResourceId = getResourceIdFromURL();
+
+  if (!currentResourceId) {
+    titleEl.textContent = "Resource not found.";
+    return;
+  }
+
+  try {
+    const [resourceRes, commentsRes] = await Promise.all([
+      fetch(`./api/index.php?id=${currentResourceId}`),
+      fetch(`./api/index.php?resource_id=${currentResourceId}&action=comments`)
+    ]);
+
+    const resourceData = await resourceRes.json();
+    const commentsData = await commentsRes.json();
+
+    if (!resourceData.success || !resourceData.data) {
+      titleEl.textContent = "Resource not found.";
+      return;
+    }
+
+    const resource = resourceData.data;
+    currentComments = commentsData.success && commentsData.data
+      ? commentsData.data
+      : [];
+
+    renderResourceDetails(resource);
+    renderComments();
+
+    commentFormEl.addEventListener('submit', handleAddComment);
+
+  } catch (error) {
+    titleEl.textContent = "Error loading resource.";
+    console.error(error);
+  }
+}
+
 initializePage();
