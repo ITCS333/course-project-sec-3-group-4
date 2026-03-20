@@ -23,9 +23,9 @@
  * The "View Resource & Discussion" link's `href` MUST be set to
  * `details.html?id=${id}` so the detail page knows which resource to load.
  */
-function createResourceArticle(resource) {
+
   // ... your implementation here ...
-}
+
 
 /**
  * TODO: Implement the loadResources function.
@@ -39,10 +39,56 @@ function createResourceArticle(resource) {
  *    - Call `createResourceArticle()` with the resource object.
  *    - Append the returned <article> element to the list section.
  */
-async function loadResources() {
+
   // ... your implementation here ...
-}
+
 
 // --- Initial Page Load ---
 // Call the function to populate the page.
+
+
+
+const listSection = document.querySelector('#resource-list-section');
+
+
+function createResourceArticle(resource) {
+  const article = document.createElement('article');
+
+  const title = document.createElement('h2');
+  title.textContent = resource.title;
+
+  const desc = document.createElement('p');
+  desc.textContent = resource.description;
+
+  const link = document.createElement('a');
+  link.href = `details.html?id=${resource.id}`;
+  link.textContent = "View Resource & Discussion";
+
+  article.appendChild(title);
+  article.appendChild(desc);
+  article.appendChild(link);
+
+  return article;
+}
+
+async function loadResources() {
+  try {
+    const res = await fetch('./api/index.php');
+    const data = await res.json();
+
+    if (!data.success) return;
+
+    listSection.innerHTML = '';
+
+    data.data.forEach(resource => {
+      const article = createResourceArticle(resource);
+      listSection.appendChild(article);
+    });
+
+  } catch (error) {
+    listSection.innerHTML = '<p>Error loading resources.</p>';
+    console.error(error);
+  }
+}
+
 loadResources();
