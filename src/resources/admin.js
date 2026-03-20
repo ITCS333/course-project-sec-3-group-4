@@ -124,15 +124,15 @@
   // ... your implementation here .
 
 let resources = [];
+let editId = null;
 
 const form = document.querySelector('#resource-form');
 const submitBtn = document.querySelector('#add-resource');
-const tableBody = document.querySelector('#resources-tbody');
-
-
+const tableBody = document.querySelector('#resources-tbody ');
 
 let editMode = false;
-let editId = null;
+
+
 
 
 
@@ -176,7 +176,6 @@ function createResourceRow(resource) {
 }
 
 function renderTable() {
-  if (!tableBody) return;
 
   tableBody.innerHTML = '';
 
@@ -184,6 +183,7 @@ function renderTable() {
     const row = createResourceRow(resource);
     tableBody.appendChild(row);
   });
+
 }
 
 async function handleAddResource(event) {
