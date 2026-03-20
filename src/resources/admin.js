@@ -123,13 +123,7 @@
   // ... your implementation here ...
 
 
-// --- Initial Page Load ---
-// Call the main async function to start the application.
-
-
-
 let resources = [];
-
 
 const form = document.querySelector('#resource-form');
 const tableBody = document.querySelector('#resources-tbody');
@@ -146,9 +140,11 @@ function createResourceRow(resource) {
   const tdTitle = document.createElement('td');
   tdTitle.textContent = resource.title;
 
+  
   const tdDesc = document.createElement('td');
   tdDesc.textContent = resource.description;
 
+  
   const tdLink = document.createElement('td');
   const a = document.createElement('a');
   a.href = resource.link;
@@ -156,16 +152,17 @@ function createResourceRow(resource) {
   a.target = "_blank";
   tdLink.appendChild(a);
 
+
   const tdActions = document.createElement('td');
 
   const editBtn = document.createElement('button');
   editBtn.textContent = "Edit";
-  editBtn.classList.add('edit-btn');
+  editBtn.className = 'edit-btn';
   editBtn.dataset.id = resource.id;
 
   const deleteBtn = document.createElement('button');
   deleteBtn.textContent = "Delete";
-  deleteBtn.classList.add('delete-btn');
+  deleteBtn.className = 'delete-btn';
   deleteBtn.dataset.id = resource.id;
 
   tdActions.appendChild(editBtn);
@@ -182,6 +179,9 @@ function createResourceRow(resource) {
 function renderTable() {
   tableBody.innerHTML = '';
 
+  
+  if (!Array.isArray(resources)) resources = [];
+
   resources.forEach(resource => {
     const row = createResourceRow(resource);
     tableBody.appendChild(row);
@@ -196,6 +196,7 @@ async function handleAddResource(event) {
   const link = document.querySelector('#resource-link').value;
 
   if (editMode) {
+    
     const res = await fetch('./api/index.php', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -271,12 +272,22 @@ async function handleTableClick(event) {
 }
 
 async function loadAndInitialize() {
-  const res = await fetch('./api/index.php');
-  const data = await res.json();
+  try {
+    const res = await fetch('./api/index.php');
+    const data = await res.json();
 
-  if (data.success) {
-    resources = data.data;
+    if (data.success && Array.isArray(data.data)) {
+      resources = data.data;
+    } else {
+      resources = [];
+    }
+
     renderTable();
+
+  } catch (error) {
+    resources = [];
+    renderTable();
+    console.error(error);
   }
 
   form.addEventListener('submit', handleAddResource);
@@ -284,5 +295,4 @@ async function loadAndInitialize() {
 }
 
 loadAndInitialize();
-
 
