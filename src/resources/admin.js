@@ -44,6 +44,10 @@
  * 3. For each resource, call `createResourceRow()` and
  *    append the returned <tr> to the table body.
  */
+function renderTable(){
+    tableBody.innerHTML = '';
+
+}
 
   // ... your implementation here ...
 
@@ -121,11 +125,13 @@
  *    calling `handleTableClick`.
  */
   // ... your implementation here .
-  
+
 let resources = [];
 
 const form = document.querySelector('#resource-form');
 const submitBtn = document.querySelector('#add-resource');
+const tableBody = document.querySelector('#resources-tbody');
+
 
 
 let editMode = false;
@@ -173,14 +179,11 @@ function createResourceRow(resource) {
 }
 
 function renderTable() {
-  const tableBody = document.querySelector('#resources-tbody');
   if (!tableBody) return;
 
   tableBody.innerHTML = '';
 
-  if (!Array.isArray(resources)) resources = [];
-
-  resources.forEach(resource => {
+  resources.forEach((resource) => {
     const row = createResourceRow(resource);
     tableBody.appendChild(row);
   });
