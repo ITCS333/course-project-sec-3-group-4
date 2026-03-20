@@ -120,37 +120,34 @@
  * 5. Add the 'click' event listener to the table body (id="resources-tbody"),
  *    calling `handleTableClick`.
  */
-  // ... your implementation here ...
-
-
+  // ... your implementation here .
+  
 let resources = [];
 
 const form = document.querySelector('#resource-form');
 const submitBtn = document.querySelector('#add-resource');
 
+
 let editMode = false;
 let editId = null;
+
 
 
 function createResourceRow(resource) {
   const tr = document.createElement('tr');
 
-  
   const tdTitle = document.createElement('td');
   tdTitle.textContent = resource.title;
 
-  
   const tdDesc = document.createElement('td');
   tdDesc.textContent = resource.description;
 
-  
   const tdLink = document.createElement('td');
   const a = document.createElement('a');
   a.href = resource.link;
   a.textContent = resource.link;
   a.target = "_blank";
   tdLink.appendChild(a);
-
 
   const tdActions = document.createElement('td');
 
@@ -177,12 +174,11 @@ function createResourceRow(resource) {
 
 function renderTable() {
   const tableBody = document.querySelector('#resources-tbody');
-
-  if (!tableBody) return; 
+  if (!tableBody) return;
 
   tableBody.innerHTML = '';
 
-  if (!Array.isArray(resources)) return;
+  if (!Array.isArray(resources)) resources = [];
 
   resources.forEach(resource => {
     const row = createResourceRow(resource);
@@ -193,12 +189,13 @@ function renderTable() {
 async function handleAddResource(event) {
   event.preventDefault();
 
-  const title = document.querySelector('#resource-title').value;
-  const description = document.querySelector('#resource-description').value;
-  const link = document.querySelector('#resource-link').value;
+  const title = document.querySelector('#resource-title').value.trim();
+  const description = document.querySelector('#resource-description').value.trim();
+  const link = document.querySelector('#resource-link').value.trim();
+
+  if (!title || !description || !link) return;
 
   if (editMode) {
-    
     const res = await fetch('./api/index.php', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -217,7 +214,6 @@ async function handleAddResource(event) {
       submitBtn.textContent = "Add Resource";
     }
   } else {
-    
     const res = await fetch('./api/index.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -243,6 +239,7 @@ async function handleAddResource(event) {
 async function handleTableClick(event) {
   const target = event.target;
 
+  
   if (target.classList.contains('delete-btn')) {
     const id = target.dataset.id;
 
@@ -258,6 +255,7 @@ async function handleTableClick(event) {
     }
   }
 
+  
   if (target.classList.contains('edit-btn')) {
     const id = target.dataset.id;
 
@@ -275,6 +273,7 @@ async function handleTableClick(event) {
 
 async function loadAndInitialize() {
   try {
+    const tableBody = document.querySelector('#resources-tbody'); 
     const res = await fetch('./api/index.php');
     const data = await res.json();
 
@@ -286,15 +285,16 @@ async function loadAndInitialize() {
 
     renderTable();
 
+    form.addEventListener('submit', handleAddResource);
+
+    
+    if (tableBody) {
+      tableBody.addEventListener('click', handleTableClick);
+    }
+
   } catch (error) {
-    resources = [];
-    renderTable();
     console.error(error);
   }
-
-  form.addEventListener('submit', handleAddResource);
-  tableBody.addEventListener('click', handleTableClick);
 }
 
 loadAndInitialize();
-
