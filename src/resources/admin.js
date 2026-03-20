@@ -126,7 +126,6 @@
 let resources = [];
 
 const form = document.querySelector('#resource-form');
-const tableBody = document.querySelector('#resources-tbody');
 const submitBtn = document.querySelector('#add-resource');
 
 let editMode = false;
@@ -177,10 +176,13 @@ function createResourceRow(resource) {
 }
 
 function renderTable() {
+  const tableBody = document.querySelector('#resources-tbody');
+
+  if (!tableBody) return; 
+
   tableBody.innerHTML = '';
 
-  
-  if (!Array.isArray(resources)) resources = [];
+  if (!Array.isArray(resources)) return;
 
   resources.forEach(resource => {
     const row = createResourceRow(resource);
