@@ -137,19 +137,36 @@ const submitBtn = document.querySelector('#add-resource');
 
 
 function createResourceRow(resource) {
-  const { id, title, description, link } = resource;
-
   const tr = document.createElement('tr');
 
-  tr.innerHTML = `
-    <td>${title}</td>
-    <td>${description}</td>
-    <td><a href="${link}" target="_blank">View</a></td>
-    <td>
-      <button class="edit-btn" data-id="${id}">Edit</button>
-      <button class="delete-btn" data-id="${id}">Delete</button>
-    </td>
-  `;
+  const titleTd = document.createElement('td');
+  titleTd.textContent = resource.title;
+
+  const descTd = document.createElement('td');
+  descTd.textContent = resource.description;
+
+  const linkTd = document.createElement('td');
+  linkTd.textContent = resource.link; 
+
+  const actionTd = document.createElement('td');
+
+  const editBtn = document.createElement('button');
+  editBtn.textContent = 'Edit';
+  editBtn.className = 'edit-btn';
+  editBtn.dataset.id = resource.id;
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Delete';
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.dataset.id = resource.id;
+
+  actionTd.appendChild(editBtn);
+  actionTd.appendChild(deleteBtn);
+
+  tr.appendChild(titleTd);
+  tr.appendChild(descTd);
+  tr.appendChild(linkTd);
+  tr.appendChild(actionTd);
 
   return tr;
 }
@@ -157,11 +174,16 @@ function createResourceRow(resource) {
 function renderTable() {
   resourcesTbody.innerHTML = '';
 
-  resources.forEach(resource => {
-    const row = createResourceRow(resource);
+  function renderTable() {
+  resourcesTbody.innerHTML = '';
+
+  for (let i = 0; i < resources.length; i++) {
+    const row = createResourceRow(resources[i]);
     resourcesTbody.appendChild(row);
-  });
+  }
 }
+  };
+
 
 async function handleAddResource(e) {
   e.preventDefault();
