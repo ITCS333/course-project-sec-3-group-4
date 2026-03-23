@@ -126,16 +126,13 @@
 
 
 
-let resources = [];
+var resources = [];
 let editMode = false;
 let editId = null;
-
 
 const resourceForm = document.querySelector('#resource-form');
 const resourcesTbody = document.querySelector('#resources-tbody');
 const submitBtn = document.querySelector('#add-resource');
-
-
 
 function createResourceRow(resource) {
   const tr = document.createElement('tr');
@@ -147,16 +144,18 @@ function createResourceRow(resource) {
   descTd.textContent = resource.description;
 
   const linkTd = document.createElement('td');
-  linkTd.textContent = resource.link; 
+  linkTd.textContent = resource.link;
 
   const actionTd = document.createElement('td');
 
   const editBtn = document.createElement('button');
+  editBtn.type = 'button';
   editBtn.textContent = 'Edit';
   editBtn.className = 'edit-btn';
   editBtn.dataset.id = resource.id;
 
   const deleteBtn = document.createElement('button');
+  deleteBtn.type = 'button';
   deleteBtn.textContent = 'Delete';
   deleteBtn.className = 'delete-btn';
   deleteBtn.dataset.id = resource.id;
@@ -174,10 +173,8 @@ function createResourceRow(resource) {
 
 function renderTable() {
   resourcesTbody.innerHTML = '';
-
   resources.forEach(resource => {
-    const row = createResourceRow(resource);
-    resourcesTbody.appendChild(row);
+    resourcesTbody.appendChild(createResourceRow(resource));
   });
 }
 
@@ -202,7 +199,6 @@ async function handleAddResource(e) {
     editMode = false;
     editId = null;
     submitBtn.textContent = 'Add Resource';
-
   } else {
     const res = await fetch('./api/index.php', {
       method: 'POST',
@@ -212,12 +208,7 @@ async function handleAddResource(e) {
 
     const data = await res.json();
 
-    resources.push({
-      id: data.id,
-      title,
-      description,
-      link
-    });
+    resources.push({ id: data.id, title, description, link });
   }
 
   renderTable();
@@ -228,16 +219,14 @@ async function handleTableClick(e) {
   const id = e.target.dataset.id;
 
   if (e.target.classList.contains('delete-btn')) {
-    await fetch(`./api/index.php?id=${id}`, {
-      method: 'DELETE'
-    });
-
+    await fetch(`./api/index.php?id=${id}`, { method: 'DELETE' });
     resources = resources.filter(r => r.id != id);
     renderTable();
   }
 
   if (e.target.classList.contains('edit-btn')) {
     const resource = resources.find(r => r.id == id);
+    if (!resource) return;
 
     document.getElementById('resource-title').value = resource.title;
     document.getElementById('resource-description').value = resource.description;
