@@ -127,6 +127,7 @@
 
 
 var resources = [];
+
 let editMode = false;
 let editId = null;
 
