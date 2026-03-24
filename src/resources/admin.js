@@ -126,7 +126,7 @@
 
 
 
-var resources = [];
+let resources = [];
 
 let editMode = false;
 let editId = null;
@@ -174,9 +174,10 @@ function createResourceRow(resource) {
 
 function renderTable() {
   resourcesTbody.innerHTML = '';
-  
-  resourcesTbody.forEach(resource => {
-    resourcesTbody.appendChild(createResourceRow(resource));
+
+  resources.forEach((resource) => {
+    const row = createResourceRow(resource);
+    resourcesTbody.appendChild(row);
   });
 }
 
