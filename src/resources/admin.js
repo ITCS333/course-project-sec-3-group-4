@@ -174,7 +174,8 @@ function createResourceRow(resource) {
 
 function renderTable() {
   resourcesTbody.innerHTML = '';
-  resources.forEach(resource => {
+  
+  resourcesTbody.forEach(resource => {
     resourcesTbody.appendChild(createResourceRow(resource));
   });
 }
