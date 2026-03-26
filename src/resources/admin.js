@@ -171,175 +171,139 @@
   Each resource object shape:
     { id: number, title: string, description: string, link: string }
 */
-
 let resources = [];
-let editingResourceId = null;
+let editMode = false;
+let editId = null;
 
-const getResourceForm   = () => document.getElementById("resource-form");
-const getResourcesTbody = () => document.getElementById("resources-tbody");
-const getTitleInput     = () => document.getElementById("resource-title");
-const getDescInput      = () => document.getElementById("resource-description");
-const getLinkInput      = () => document.getElementById("resource-link");
-const getSubmitButton   = () => document.getElementById("add-resource");
+
+const resourceForm = document.querySelector('#resource-form');
+const resourcesTbody = document.querySelector('#resources-tbody');
+const submitBtn = document.querySelector('#add-resource');
+
 
 
 function createResourceRow(resource) {
-  const tr = document.createElement("tr");
+  const tr = document.createElement('tr');
 
-  const titleTd = document.createElement("td");
+  const titleTd = document.createElement('td');
   titleTd.textContent = resource.title;
 
-  const descTd = document.createElement("td");
+  const descTd = document.createElement('td');
   descTd.textContent = resource.description;
 
-  const linkTd = document.createElement("td");
-  linkTd.textContent = resource.link;
+  const linkTd = document.createElement('td');
+  linkTd.textContent = resource.link; 
 
-  const actionsTd = document.createElement("td");
+  const actionTd = document.createElement('td');
 
-  const editBtn = document.createElement("button");
-  editBtn.textContent = "Edit";
-  editBtn.classList.add("edit-btn");
-  editBtn.setAttribute("data-id", resource.id);
+  const editBtn = document.createElement('button');
+  editBtn.textContent = 'Edit';
+  editBtn.className = 'edit-btn';
+  editBtn.dataset.id = resource.id;
 
-  const deleteBtn = document.createElement("button");
-  deleteBtn.textContent = "Delete";
-  deleteBtn.classList.add("delete-btn");
-  deleteBtn.setAttribute("data-id", resource.id);
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Delete';
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.dataset.id = resource.id;
 
-  actionsTd.appendChild(editBtn);
-  actionsTd.appendChild(deleteBtn);
+  actionTd.appendChild(editBtn);
+  actionTd.appendChild(deleteBtn);
 
   tr.appendChild(titleTd);
   tr.appendChild(descTd);
   tr.appendChild(linkTd);
-  tr.appendChild(actionsTd);
+  tr.appendChild(actionTd);
 
   return tr;
 }
 
 function renderTable() {
-  const tbody = getResourcesTbody();
-  tbody.innerHTML = "";
-  resources.forEach((resource) => {
-    tbody.appendChild(createResourceRow(resource));
+  resourcesTbody.innerHTML = '';
+
+  resources.forEach(resource => {
+    const row = createResourceRow(resource);
+    resourcesTbody.appendChild(row);
   });
 }
 
-async function handleAddResource(event) {
-  event.preventDefault();
+async function handleAddResource(e) {
+  e.preventDefault();
 
-  const title       = getTitleInput().value.trim();
-  const description = getDescInput().value.trim();
-  const link        = getLinkInput().value.trim();
-  const submitBtn   = getSubmitButton();
+  const title = document.getElementById('resource-title').value;
+  const description = document.getElementById('resource-description').value;
+  const link = document.getElementById('resource-link').value;
 
-  if (!title) return;
-
-  const editId = submitBtn.dataset.editId;
-
-  if (editId) {
-    await handleUpdateResource(editId, { title, description, link });
-    delete submitBtn.dataset.editId;
-    submitBtn.textContent = "Add Resource";
-  } else {
-    const res = await fetch("./api/index.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description, link }),
+  if (editMode) {
+    await fetch('./api/index.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editId, title, description, link })
     });
-    const result = await res.json();
-    if (result.success) {
-      resources.push({ id: result.id, title, description, link });
-      renderTable();
-      getResourceForm().reset();
-    }
+
+    resources = resources.map(r =>
+      r.id == editId ? { id: editId, title, description, link } : r
+    );
+
+    editMode = false;
+    editId = null;
+    submitBtn.textContent = 'Add Resource';
+
+  } else {
+    const res = await fetch('./api/index.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, description, link })
+    });
+
+    const data = await res.json();
+
+    resources.push({
+      id: data.id,
+      title,
+      description,
+      link
+    });
   }
+
+  renderTable();
+  resourceForm.reset();
 }
 
-async function handleUpdateResource(id, fields) {
-  const res = await fetch("./api/index.php", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, ...fields }),
-  });
+async function handleTableClick(e) {
+  const id = e.target.dataset.id;
 
-  const result = await res.json();
-  if (result.success) {
-    const index = resources.findIndex((r) => r.id == id);
-    if (index !== -1) {
-      resources[index] = { id: Number(id), ...fields };
-    }
+  if (e.target.classList.contains('delete-btn')) {
+    await fetch(`./api/index.php?id=${id}`, {
+      method: 'DELETE'
+    });
 
+    resources = resources.filter(r => r.id != id);
     renderTable();
-    getResourceForm().reset();
-
-    const submitBtn = getSubmitButton();
-    submitBtn.textContent = "Add Resource";
-    delete submitBtn.dataset.editId;
-  }
-}
-
-async function handleTableClick(event) {
-  const target = event.target;
-
-  if (target.classList.contains("delete-btn")) {
-    const idToDelete = parseInt(target.dataset.id, 10);
-
-    try {
-      const response = await fetch(`./api/index.php?id=${idToDelete}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error("Failed to delete resource from server");
-
-      resources = resources.filter((r) => r.id !== idToDelete);
-      renderTable();
-    } catch (error) {
-      console.error("Error deleting resource:", error);
-    }
-
-    return;
   }
 
-  if (target.classList.contains("edit-btn")) {
-    const idToEdit       = parseInt(target.dataset.id, 10);
-    const resourceToEdit = resources.find((r) => r.id === idToEdit);
-    if (!resourceToEdit) return;
+  if (e.target.classList.contains('edit-btn')) {
+    const resource = resources.find(r => r.id == id);
 
-    getTitleInput().value = resourceToEdit.title       || "";
-    getDescInput().value  = resourceToEdit.description || "";
-    getLinkInput().value  = resourceToEdit.link        || "";
+    document.getElementById('resource-title').value = resource.title;
+    document.getElementById('resource-description').value = resource.description;
+    document.getElementById('resource-link').value = resource.link;
 
-    const submitBtn = getSubmitButton();
-    submitBtn.textContent    = "Update Resource";
-    submitBtn.dataset.editId = idToEdit;
-
-    if (typeof window.scrollTo === "function") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    editMode = true;
+    editId = id;
+    submitBtn.textContent = 'Update Resource';
   }
 }
 
 async function loadAndInitialize() {
-  try {
-    const response = await fetch("./api/index.php");
-    if (!response.ok) throw new Error("Failed to fetch resources from API");
+  const res = await fetch('./api/index.php');
+  const data = await res.json();
 
-    const result = await response.json();
-    resources = (result.success && Array.isArray(result.data)) ? result.data : [];
-  } catch (error) {
-    console.error("Error loading resources:", error);
-    resources = [];
-  }
+  resources = data.data;
 
   renderTable();
 
-  const form  = getResourceForm();
-  const tbody = getResourcesTbody();
-
-  if (form)  form.addEventListener("submit", handleAddResource);
-  if (tbody) tbody.addEventListener("click", handleTableClick);
+  resourceForm.addEventListener('submit', handleAddResource);
+  resourcesTbody.addEventListener('click', handleTableClick);
 }
 
 loadAndInitialize();
