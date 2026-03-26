@@ -175,10 +175,10 @@ function createResourceRow(resource) {
 function renderTable() {
   resourcesTbody.innerHTML = '';
 
-  const row = createResourceRow(resources);
+  const row = createResourceRow(resource);
 
   resources.forEach((resource) => {
-    resourcesTbody.appendChild(row);
+      resourcesTbody.appendChild(row);
   });
 }
 
