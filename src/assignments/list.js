@@ -54,7 +54,29 @@
  * the assignments table) so that details.js can read the id from the URL.
  */
 function createAssignmentArticle(assignment) {
-  // ... your implementation here ...
+  const { id, title, dueDate, description } = assignment;
+  
+  const article = document.createElement('article');
+
+  const h2 = document.createElement('h2');
+  h2.textContent = title;
+
+  const dueP = document.createElement('p');
+  dueP.innerHTML = `<strong>Due:</strong> ${dueDate}`;
+
+  const descP = document.createElement('p');
+  descP.textContent = description;
+
+  const link = document.createElement('a');
+  link.href = `details.html?id=${id}`;
+  link.textContent = 'View Details & Discussion';
+  
+  article.appendChild(h2);
+  article.appendChild(dueP);
+  article.appendChild(descP);
+  article.appendChild(link);
+
+  return article;
 }
 
 /**
@@ -71,7 +93,26 @@ function createAssignmentArticle(assignment) {
  *    - Append the returned <article> to the list section.
  */
 async function loadAssignments() {
-  // ... your implementation here ...
+  try {
+    // 1. Fetch data from 'assignments.json'
+    const response = await fetch('assignments.json');
+
+    if (!response.ok) {
+      throw new Error('Failed to load assignments.json');
+    }
+
+    const assignments = await response.json();
+
+    listSection.innerHTML = '';
+
+    assignments.forEach((assignment) => {
+      const article = createAssignmentArticle(assignment);
+      listSection.appendChild(article);
+    });
+  } catch (error) {
+    console.error('Error loading assignments:', error);
+    listSection.innerHTML = '<p>Failed to load assignments.</p>';
+  }
 }
 
 // --- Initial Page Load ---
