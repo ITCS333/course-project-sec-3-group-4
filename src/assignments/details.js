@@ -54,7 +54,7 @@ const assignmentDescription = document.querySelector('#assignment-description');
 const assignmentFilesList = document.querySelector('#assignment-files-list');
 const commentList = document.querySelector('#comment-list');
 const commentForm = document.querySelector('#comment-form');
-const newCommentText = document.querySelector('#new-comment');
+const newCommentInput = document.querySelector('#new-comment');
 
 /**
  * TODO: Implement getAssignmentIdFromURL.
@@ -191,7 +191,7 @@ async function handleAddComment(event) {
   if (result.success) {
     currentComments.push(result.data); // use API response
     renderComments();
-    newCommentInput.value = '';
+    newCommentInput.value = ''; // FIXED clear textarea
   }
 }
 /**
