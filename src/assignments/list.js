@@ -25,7 +25,7 @@
 // --- Element Selections ---
 // TODO: Select the section for the assignment list using its
 //       id 'assignment-list-section'.
-
+const listSection = document.querySelector('#assignment-list-section');
 // --- Functions ---
 
 /**
@@ -54,7 +54,7 @@
  * the assignments table) so that details.js can read the id from the URL.
  */
 function createAssignmentArticle(assignment) {
-  const { id, title, dueDate, description } = assignment;
+  const { id, title, due_date, description } = assignment;
   
   const article = document.createElement('article');
 
@@ -62,7 +62,7 @@ function createAssignmentArticle(assignment) {
   h2.textContent = title;
 
   const dueP = document.createElement('p');
-  dueP.innerHTML = `<strong>Due:</strong> ${dueDate}`;
+  dueP.innerHTML = `<strong>Due:</strong> ${due_date}`;
 
   const descP = document.createElement('p');
   descP.textContent = description;
@@ -94,17 +94,23 @@ function createAssignmentArticle(assignment) {
  */
 async function loadAssignments() {
   try {
-    // 1. Fetch data from 'assignments.json'
-    const response = await fetch('assignments.json');
-
+    // 1. Fetch data from API
+    const response = await fetch('./api/index.php');
     if (!response.ok) {
-      throw new Error('Failed to load assignments.json');
+      throw new Error('Failed to load assignments');
     }
 
-    const assignments = await response.json();
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error('API returned an error');
+    }
 
+    const assignments = result.data;
+
+    // 3. Clear existing content
     listSection.innerHTML = '';
 
+   // 4. Loop through assignments
     assignments.forEach((assignment) => {
       const article = createAssignmentArticle(assignment);
       listSection.appendChild(article);
