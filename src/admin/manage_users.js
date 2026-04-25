@@ -161,6 +161,19 @@ function handleAddUser(event) {
   if(password.length < 8){
     alert("Password must be at least 8 characters.")
   }
+  postrequest('../api/index.php', { name, email, password, is_admin: isadmin })
+    .then(response => {
+      if (response.success) {
+        loadUsersAndInitialize();
+        document.getElementById("user-name").value = "";
+        document.getElementById("user-email").value = "";
+        document.getElementById("default-password").value = "";
+        document.getElementById("is-admin").value = "0";
+      } 
+      else {
+        alert(response.message);
+      }
+    });
 }
 
 /**
