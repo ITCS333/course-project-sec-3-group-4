@@ -19,15 +19,15 @@ let users = [];
 // the HTML document is parsed before this script runs.
 
 // TODO: Select the user table body element with id="user-table-body".
-
+const userTableBody = document.getElementById("user-table-body")
 // TODO: Select the "Add User" form with id="add-user-form".
-
+const addUser = document.getElementById("add-user-form")
 // TODO: Select the "Change Password" form with id="password-form".
-
+const changePassword = document.getElementById("password-form")
 // TODO: Select the search input field with id="search-input".
-
+const searchInput = document.getElementById("search-input")
 // TODO: Select all table header (th) elements inside the thead of id="user-table".
-
+const tableHeaders = document.querySelectorAll("#user-table thead th");
 // --- Functions ---
 
 /**
@@ -43,6 +43,35 @@ let users = [];
  */
 function createUserRow(user) {
   // ... your implementation here ...
+  const tr = document.createElement('tr');
+
+  const nameTd = document.createElement('td');
+  nameTd.textContent = user.name;
+  tr.appendChild(nameTd);
+
+  const emailTd = document.createElement('td');
+  emailTd.textContent = user.email;
+  tr.appendChild(emailTd);
+
+  const adminTd = document.createElement('td');
+  adminTd.textContent = user.is_admin === 1 ? "Yes" : "No";
+  tr.appendChild(adminTd);
+
+  const actionsTd = document.createElement('td');
+  const editBtn = document.createElement('button');
+  editBtn.className = "edit-btn";
+  editBtn.setAttribute("data-id", user.id);
+  editBtn.textContent = "Edit";
+  actionsTd.appendChild(editBtn);
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = "delete-btn";
+  deleteBtn.setAttribute("data-id", user.id);
+  deleteBtn.textContent = "Delete";
+  actionsTd.appendChild(deleteBtn);
+
+  tr.appendChild(actionsTd);
+  return tr;
 }
 
 /**
@@ -55,6 +84,11 @@ function createUserRow(user) {
  */
 function renderTable(userArray) {
   // ... your implementation here ...
+  userTableBody.innerHTML = '';
+  userArray.forEach(user => {
+    const row = createUserRow(user);
+    userTableBody.appendChild(row);
+  });
 }
 
 /**
@@ -74,8 +108,30 @@ function renderTable(userArray) {
  */
 function handleChangePassword(event) {
   // ... your implementation here ...
-}
-
+  event.preventDefault();
+  const currentPassword = document.getElementById("current-password").value;
+  const newPassword = document.getElementById("new-password").value;
+  const confirmPassword = document.getElementById("confirm-password").value;
+  if (newPassword !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+  if (newPassword.length < 8) {
+    alert("Password must be at least 8 characters.");
+    return;
+  }
+  postrequest('../api/index.php?action=change_password', { current_password: currentPassword, new_password: newPassword })
+    .then(response => {
+      if (response.success) {
+        alert("Password updated successfully!");
+        document.getElementById("current-password").value = "";
+        document.getElementById("new-password").value = "";
+        document.getElementById("confirm-password").value = "";
+      } else {
+        alert(response.message);
+      }
+    });
+  }
 /**
  * TODO: Implement the handleAddUser function.
  * This function is called when the "Add User" form is submitted.
@@ -94,6 +150,17 @@ function handleChangePassword(event) {
  */
 function handleAddUser(event) {
   // ... your implementation here ...
+  event.preventDefault();
+  const name = document.getElementById("user-name").value;
+  const email = document.getElementById("user-email").value;
+  const password = document.getElementById("default-password").value;
+  const isadmin = document.getElementById("is-admin").value;
+  if(name === "" || email === "" || password === ""){
+    alert("Please fill out all required fields.")
+  }
+  if(password.length < 8){
+    alert("Password must be at least 8 characters.")
+  }
 }
 
 /**
