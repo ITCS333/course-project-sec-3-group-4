@@ -156,7 +156,47 @@ function getAllWeeks(PDO $db): void
     // $row['links'] = json_decode($row['links'], true) ?? [];
 
     // TODO: Call sendResponse(['success' => true, 'data' => $weeks]);
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $sort   = isset($_GET['sort']) ? strtolower($_GET['sort']) : 'start_date';
+    $order  = isset($_GET['order']) ? strtolower($_GET['order']) : 'asc';
+
+     $allowedSortFields = ['title', 'start_date', 'created_at'];
+    if (!in_array($sort, $allowedSortFields)) {
+        $sort = 'start_date';
+    }
+    $order = ($order === 'desc') ? 'DESC' : 'ASC';
+
+    $query = "SELECT id, title, start_date, description, links, created_at FROM weeks";
+    $params = [];
+
+    if ($search !== '') {
+        $query .= " WHERE title LIKE ? OR description LIKE ?";
+        $searchTerm = '%' . $search . '%';
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+    }
+    $query .= " ORDER BY $sort $order";
+
+    try {
+        // Prepare and execute
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+
+        // Fetch results
+        $weeks = $stmt->fetchAll();
+
+        // Decode links JSON
+        foreach ($weeks as &$week) {
+            $week['links'] = json_decode($week['links'], true) ?? [];
+        }
+
+        // Return response
+        sendResponse(200, ['success' => true, 'data' => $weeks]);
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve weeks']);
+    }
 }
+
 
 
 /**
