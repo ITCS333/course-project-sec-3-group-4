@@ -171,16 +171,13 @@
   Each resource object shape:
     { id: number, title: string, description: string, link: string }
 */
-let resources = [];
+var resources = [];
 let editMode = false;
 let editId = null;
-
 
 const resourceForm = document.querySelector('#resource-form');
 const resourcesTbody = document.querySelector('#resources-tbody');
 const submitBtn = document.querySelector('#add-resource');
-
-
 
 function createResourceRow(resource) {
   const tr = document.createElement('tr');
@@ -192,7 +189,7 @@ function createResourceRow(resource) {
   descTd.textContent = resource.description;
 
   const linkTd = document.createElement('td');
-  linkTd.textContent = resource.link; 
+  linkTd.textContent = resource.link;
 
   const actionTd = document.createElement('td');
 
@@ -217,10 +214,10 @@ function createResourceRow(resource) {
   return tr;
 }
 
-function renderTable() {
+function renderTable(data = resources) {
   resourcesTbody.innerHTML = '';
 
-  resources.forEach(resource => {
+  data.forEach((resource) => {
     const row = createResourceRow(resource);
     resourcesTbody.appendChild(row);
   });
@@ -240,14 +237,13 @@ async function handleAddResource(e) {
       body: JSON.stringify({ id: editId, title, description, link })
     });
 
-    resources = resources.map(r =>
+    resources = resources.map((r) =>
       r.id == editId ? { id: editId, title, description, link } : r
     );
 
     editMode = false;
     editId = null;
     submitBtn.textContent = 'Add Resource';
-
   } else {
     const res = await fetch('./api/index.php', {
       method: 'POST',
@@ -255,10 +251,10 @@ async function handleAddResource(e) {
       body: JSON.stringify({ title, description, link })
     });
 
-    const data = await res.json();
+    const result = await res.json();
 
     resources.push({
-      id: data.id,
+      id: result.id,
       title,
       description,
       link
@@ -271,18 +267,20 @@ async function handleAddResource(e) {
 
 async function handleTableClick(e) {
   const id = e.target.dataset.id;
+  if (!id) return;
 
   if (e.target.classList.contains('delete-btn')) {
     await fetch(`./api/index.php?id=${id}`, {
       method: 'DELETE'
     });
 
-    resources = resources.filter(r => r.id != id);
+    resources = resources.filter((r) => r.id != id);
     renderTable();
   }
 
   if (e.target.classList.contains('edit-btn')) {
-    const resource = resources.find(r => r.id == id);
+    const resource = resources.find((r) => r.id == id);
+    if (!resource) return;
 
     document.getElementById('resource-title').value = resource.title;
     document.getElementById('resource-description').value = resource.description;
@@ -299,8 +297,7 @@ async function loadAndInitialize() {
   const data = await res.json();
 
   resources = data.data;
-
-  renderTable();
+  renderTable(resources);
 
   resourceForm.addEventListener('submit', handleAddResource);
   resourcesTbody.addEventListener('click', handleTableClick);
