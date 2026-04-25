@@ -212,15 +212,33 @@ function getWeekById(PDO $db, $id): void
 {
     // TODO: Validate that $id is provided and numeric.
     // If not, call sendResponse with HTTP 400.
+     if (!isset($id) || !is_numeric($id)) {
+        sendResponse(400, ['success' => false, 'error' => 'Missing or invalid id']);
+         return;
+    }
 
     // TODO: SELECT id, title, start_date, description, links, created_at
     //       FROM weeks WHERE id = ?
+    $query = "SELECT id, title, start_date, description, links, created_at FROM weeks WHERE id = ?";
 
     // TODO: Fetch one row. Decode the links JSON:
     // $week['links'] = json_decode($week['links'], true) ?? [];
+  try {
+        $stmt = $db->prepare($query);
+        $stmt->execute([$id]);  
 
+        $week = $stmt->fetch();
     // TODO: If found, sendResponse success with the week.
     // If not found, sendResponse error with HTTP 404.
+    if ($week) {
+        $week['links'] = json_decode($week['links'], true) ?? [];
+        sendResponse(200, ['success' => true, 'data' => $week]);
+         } else {
+            sendResponse(404, ['success' => false, 'error' => 'Week not found']);
+         }
+         } catch (PDOException $e) {
+            sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve week']);
+         }
 }
 
 
