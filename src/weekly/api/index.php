@@ -1,4 +1,6 @@
 <?php
+session_start();
+$_SESSION['initialized'] = true;
 /**
  * Weekly Course Breakdown API
  *
@@ -65,15 +67,25 @@
 // Allow cross-origin requests (CORS) if needed.
 // Allow HTTP methods: GET, POST, PUT, DELETE, OPTIONS.
 // Allow headers: Content-Type, Authorization.
+header('Content-Type: application/json; charset=utf-8');
 
+$allowedMethods = 'GET, POST, PUT, DELETE, OPTIONS';
+$allowedHeaders = 'Content-Type, Authorization';
 
 // TODO: Handle preflight OPTIONS request.
 // If the request method is OPTIONS, return HTTP 200 and exit.
-
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 // TODO: Include the shared database connection file.
 // require_once __DIR__ . '/../../common/db.php';
+require_once __DIR__ . '/../../common/db.php';
 
+$database = new Database();
+$db = $database->getConnection();
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // TODO: Get the PDO database connection.
 // $db = getDBConnection();
@@ -81,7 +93,7 @@
 
 // TODO: Read the HTTP request method.
 // $method = $_SERVER['REQUEST_METHOD'];
-
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 // TODO: Read and decode the request body for POST and PUT requests.
 // $rawData = file_get_contents('php://input');
@@ -93,7 +105,15 @@
 // $id        = $_GET['id']         ?? null;  // integer week id
 // $weekId    = $_GET['week_id']    ?? null;  // integer week id for comments queries
 // $commentId = $_GET['comment_id'] ?? null;  // integer comment id
-
+$rawBody = file_get_contents('php://input');
+$data = [];
+if ($rawBody !== false && $rawBody !== '') {
+    $decoded = json_decode($rawBody, true);
+    if (is_array($decoded)) {
+        $bodyData = $decoded;
+    }
+}
+$resource = isset($_GET['resource']) ? strtolower(trim($_GET['resource'])) : 'weeks';
 
 // ============================================================================
 // WEEKS FUNCTIONS
@@ -136,7 +156,47 @@ function getAllWeeks(PDO $db): void
     // $row['links'] = json_decode($row['links'], true) ?? [];
 
     // TODO: Call sendResponse(['success' => true, 'data' => $weeks]);
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $sort   = isset($_GET['sort']) ? strtolower($_GET['sort']) : 'start_date';
+    $order  = isset($_GET['order']) ? strtolower($_GET['order']) : 'asc';
+
+     $allowedSortFields = ['title', 'start_date', 'created_at'];
+    if (!in_array($sort, $allowedSortFields)) {
+        $sort = 'start_date';
+    }
+    $order = ($order === 'desc') ? 'DESC' : 'ASC';
+
+    $query = "SELECT id, title, start_date, description, links, created_at FROM weeks";
+    $params = [];
+
+    if ($search !== '') {
+        $query .= " WHERE title LIKE ? OR description LIKE ?";
+        $searchTerm = '%' . $search . '%';
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+    }
+    $query .= " ORDER BY $sort $order";
+
+    try {
+        // Prepare and execute
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+
+        // Fetch results
+        $weeks = $stmt->fetchAll();
+
+        // Decode links JSON
+        foreach ($weeks as &$week) {
+            $week['links'] = json_decode($week['links'], true) ?? [];
+        }
+
+        // Return response
+        sendResponse(200, ['success' => true, 'data' => $weeks]);
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve weeks']);
+    }
 }
+
 
 
 /**
@@ -152,15 +212,33 @@ function getWeekById(PDO $db, $id): void
 {
     // TODO: Validate that $id is provided and numeric.
     // If not, call sendResponse with HTTP 400.
+     if (!isset($id) || !is_numeric($id)) {
+        sendResponse(400, ['success' => false, 'error' => 'Missing or invalid id']);
+         return;
+    }
 
     // TODO: SELECT id, title, start_date, description, links, created_at
     //       FROM weeks WHERE id = ?
+    $query = "SELECT id, title, start_date, description, links, created_at FROM weeks WHERE id = ?";
 
     // TODO: Fetch one row. Decode the links JSON:
     // $week['links'] = json_decode($week['links'], true) ?? [];
+  try {
+        $stmt = $db->prepare($query);
+        $stmt->execute([$id]);  
 
+        $week = $stmt->fetch();
     // TODO: If found, sendResponse success with the week.
     // If not found, sendResponse error with HTTP 404.
+    if ($week) {
+        $week['links'] = json_decode($week['links'], true) ?? [];
+        sendResponse(200, ['success' => true, 'data' => $week]);
+         } else {
+            sendResponse(404, ['success' => false, 'error' => 'Week not found']);
+         }
+         } catch (PDOException $e) {
+            sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve week']);
+         }
 }
 
 
