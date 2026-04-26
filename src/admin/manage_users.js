@@ -120,7 +120,7 @@ function handleChangePassword(event) {
     alert("Password must be at least 8 characters.");
     return;
   }
-  postrequest('../api/index.php?action=change_password', { current_password: currentPassword, new_password: newPassword })
+  postrequest("admin/api/index.php?action=change_password", { current_password: currentPassword, new_password: newPassword })
     .then(response => {
       if (response.success) {
         alert("Password updated successfully!");
@@ -161,7 +161,7 @@ function handleAddUser(event) {
   if(password.length < 8){
     alert("Password must be at least 8 characters.")
   }
-  postrequest('../api/index.php', { name, email, password, is_admin: isadmin })
+  postrequest("admin/api/index.php", { name, email, password, is_admin: isadmin })
     .then(response => {
       if (response.success) {
         loadUsersAndInitialize();
@@ -193,6 +193,22 @@ function handleAddUser(event) {
  */
 function handleTableClick(event) {
   // ... your implementation here ...
+  if (event.target.classList.contains("delete-btn")) {
+    const id = event.target.getAttribute("data-id");
+    fetch(`admin/api/index.php?id=${id}`, { method: "DELETE" })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          users = users.filter(user => user.id !== parseInt(id));
+          renderTable(users);
+        } else {
+          alert(data.message);
+        }
+      });
+  }
+  else if (event.target.classList.contains("edit-btn")) {
+    const id = event.target.getAttribute("data-id");
+  }
 }
 
 /**
@@ -208,6 +224,17 @@ function handleTableClick(event) {
  */
 function handleSearch(event) {
   // ... your implementation here ...
+  const searchTerm = searchInput.value.toLowerCase();
+  if (searchTerm === "") {
+    renderTable(users);
+  }
+  else {
+    const filteredUsers = users.filter(user => 
+      user.name.toLowerCase().includes(searchTerm) || 
+      user.email.toLowerCase().includes(searchTerm)
+    );
+    renderTable(filteredUsers);
+  }
 }
 
 /**
@@ -229,6 +256,22 @@ function handleSearch(event) {
  */
 function handleSort(event) {
   // ... your implementation here ...
+  const columnIndex = event.currentTarget.cellIndex;
+  const columnMap = { 0: 'name', 1: 'email', 2: 'is_admin' };
+  const sortKey = columnMap[columnIndex];
+  const currentDir = event.currentTarget.getAttribute("data-sort-dir") || "asc";
+  const newDir = currentDir === "asc" ? "desc" : "asc";
+  event.currentTarget.setAttribute("data-sort-dir", newDir);
+  users.sort((a, b) => {
+    let comparison = 0;
+    if (sortKey === 'name' || sortKey === 'email') {
+      comparison = a[sortKey].localeCompare(b[sortKey]);
+    } else {
+      comparison = a[sortKey] - b[sortKey];
+    }
+    return newDir === "desc" ? -comparison : comparison;
+  });
+  renderTable(users);
 }
 
 /**
@@ -250,6 +293,28 @@ function handleSort(event) {
  */
 async function loadUsersAndInitialize() {
   // ... your implementation here ...
+  try {
+    const response = await fetch('../api/index.php');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    if (data.success) {
+      users = data.data;
+      renderTable(users);
+    } else {
+      console.error("Failed to load users:", data.message);
+      alert("Failed to load users.");
+    }
+  } catch (error) {
+    console.error("Error loading users:", error);
+    alert("An error occurred while loading users.");
+  }
+  changePassword.addEventListener("submit", handleChangePassword);
+  addUser.addEventListener("submit", handleAddUser);
+  userTableBody.addEventListener("click", handleTableClick);
+  searchInput.addEventListener("input", handleSearch);
+  tableHeaders.forEach(th => th.addEventListener("click", handleSort));
 }
 
 // --- Initial Page Load ---
