@@ -276,6 +276,59 @@ function createWeek(PDO $db, array $data): void
 
     // TODO: If rowCount() > 0, sendResponse HTTP 201 with the new id.
     // Otherwise sendResponse HTTP 500.
+     $required = ['week_id', 'title', 'start_date'];
+    foreach ($required as $field) {
+        if (!isset($data[$field]) || trim($data[$field]) === '') {
+            sendResponse(400, ['success' => false, 'error' => "Missing or invalid field: $field"]);
+            return;
+        }
+    }
+
+     $weekId     = trim($data['week_id']);
+    $title      = trim($data['title']);
+    $startDate  = trim($data['start_date']);
+    $description = isset($data['description']) ? trim($data['description']) : "";
+
+     $dateObj = DateTime::createFromFormat('Y-m-d', $startDate);
+    if (!$dateObj || $dateObj->format('Y-m-d') !== $startDate) {
+        sendResponse(400, ['success' => false, 'error' => 'Invalid start_date format. Use YYYY-MM-DD']);
+        return;
+    }
+
+     try {
+        $checkQuery = "SELECT id FROM weeks WHERE week_id = ?";
+        $checkStmt = $db->prepare($checkQuery);
+        $checkStmt->execute([$weekId]);
+        if ($checkStmt->fetch()) {
+            sendResponse(409, ['success' => false, 'error' => 'Week ID already exists']);
+            return;
+        }
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Database error during duplicate check']);
+        return;
+    }
+
+     $links = isset($data['links']) && is_array($data['links']) ? json_encode($data['links']) : json_encode([]);
+
+     $insertQuery = "INSERT INTO weeks (week_id, title, start_date, description, links) VALUES (?, ?, ?, ?, ?)";
+
+     try {
+        $insertStmt = $db->prepare($insertQuery);
+        $insertStmt->execute([$weekId, $title, $startDate, $description, $links]);
+
+        // Return success response
+        $newWeek = [
+            'week_id'    => $weekId,
+            'title'      => $title,
+            'start_date' => $startDate,
+            'description'=> $description,
+            'links'      => json_decode($links, true),
+        ];
+
+        sendResponse(201, ['success' => true, 'data' => $newWeek]);
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Failed to create week']);
+    }
 }
 
 
