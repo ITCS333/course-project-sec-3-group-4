@@ -367,7 +367,85 @@ function updateWeek(PDO $db, array $data): void
     // Prepare, bind all SET values, then bind id, and execute.
 
     // TODO: sendResponse HTTP 200 on success, HTTP 500 on failure.
+    if (!isset($data['id']) || trim($data['id']) === '') {
+        sendResponse(400, ['success' => false, 'error' => 'Missing or invalid week_id']);
+        return;
+    }
+
+    $id = trim($data['id']);
+
+     try {
+        $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ? = ?");
+        $checkStmt->execute([$weekId]);
+        if (!$checkStmt->fetch()) {
+            sendResponse(404, ['success' => false, 'error' => 'Week not found']);
+            return;
+        }
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Database error during lookup']);
+        return;
+    }
+
+    $setClauses = [];
+    $values = [];
+
+    if (isset($data['title'])) {
+        $setClauses[] = "title = ?";
+        $values[] = trim($data['title']);
+    }
+
+        if (isset($data['start_date'])) {
+        $startDate = trim($data['start_date']);
+        $dateObj = DateTime::createFromFormat('Y-m-d', $startDate);
+        if (!$dateObj || $dateObj->format('Y-m-d') !== $startDate) {
+            sendResponse(400, ['success' => false, 'error' => 'Invalid start_date format. Use YYYY-MM-DD']);
+            return;
+        }
+        $setClauses[] = "start_date = ?";
+        $values[] = $startDate;
+    }
+
+     if (isset($data['description'])) {
+        $setClauses[] = "description = ?";
+        $values[] = trim($data['description']);
+    }
+
+    if (isset($data['links'])) {
+        $encodedLinks = is_array($data['links']) ? json_encode($data['links']) : json_encode([]);
+        $setClauses[] = "links = ?";
+        $values[] = $encodedLinks;
+    }
+
+    if (empty($setClauses)) {
+        sendResponse(400, ['success' => false, 'error' => 'No fields provided for update']);
+        return;
+    }
+
+    $setClauses[] = "updated_at = CURRENT_TIMESTAMP";
+
+    $query = "UPDATE weeks SET " . implode(', ', $setClauses) . " WHERE id = ? ";
+    $values[] = $Id;
+
+     try {
+        $stmt = $db->prepare($query);
+        $stmt->execute($values);
+
+        // Return updated data
+        $getStmt = $db->prepare("SELECT week_id, title, start_date, description, links, created_at, updated_at FROM weeks WHERE id = ?");
+        $getStmt->execute([$Id]);
+        $updatedWeek = $getStmt->fetch();
+
+        if ($updatedWeek) {
+            $updatedWeek['links'] = json_decode($updatedWeek['links'], true) ?? [];
+            sendResponse(200, ['success' => true, 'data' => $updatedWeek]);
+        } else {
+            sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve updated week']);
+        }
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Failed to update week']);
+    }
 }
+
 
 
 /**
