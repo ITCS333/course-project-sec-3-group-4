@@ -583,6 +583,57 @@ function createComment(PDO $db, array $data): void
     // TODO: If rowCount() > 0, sendResponse HTTP 201 with the new id
     //       and the full new comment object.
     // Otherwise sendResponse HTTP 500.
+    $required = ['week_id', 'author', 'text'];
+    foreach ($required as $field) {
+        if (!isset($data[$field]) || trim($data[$field]) === '') {
+            sendResponse(400, ['success' => false, 'error' => "Missing or invalid field: $field"]);
+            return;
+        }
+    }
+
+     $weekId = trim($data['week_id']);
+     if (!is_numeric($weekId)) {
+    sendResponse(400, ['success' => false, 'error' => 'Invalid week_id']);
+    return;
+}
+$weekId = (int)$weekId;
+
+    $author = trim($data['author']);
+    $text   = trim($data['text']);
+
+     if ($text === '') {
+        sendResponse(400, ['success' => false, 'error' => 'Comment text cannot be empty']);
+        return;
+    }
+
+     try {
+        $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ?");
+        $checkStmt->execute([$weekId]);
+        if (!$checkStmt->fetch()) {
+            sendResponse(404, ['success' => false, 'error' => 'Week not found']);
+            return;
+        }
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Database error during week lookup']);
+        return;
+    }
+
+     $insertQuery = "INSERT INTO comments_week (week_id, author, text) VALUES (?, ?, ?)";
+
+      try {
+        $stmt = $db->prepare($insertQuery);
+        $stmt->execute([$weekId, $author, $text]);
+
+        // Get the last inserted comment
+        $commentId = $db->lastInsertId();
+        $getStmt = $db->prepare("SELECT id, week_id, author, text, created_at FROM comments_week WHERE id = ?");
+        $getStmt->execute([$commentId]);
+        $newComment = $getStmt->fetch();
+
+        sendResponse(201, ['success' => true, 'data' => $newComment]);
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Failed to create comment']);
+    }
 }
 
 
