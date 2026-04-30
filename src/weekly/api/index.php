@@ -472,6 +472,39 @@ function deleteWeek(PDO $db, $id): void
 
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
+    if (!isset($id) || trim($id) === '' || !is_numeric($id)) {
+    sendResponse(400, ['success' => false, 'error' => 'Missing or invalid week_id']);
+    return;
+}
+
+$weekID = (int)$id;
+
+    try {
+         $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ?");
+        $checkStmt->execute([$weekId]);
+        if (!$checkStmt->fetch()) {
+            sendResponse(404, ['success' => false, 'error' => 'Week not found']);
+            return;
+        }
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Database error during lookup']);
+        return;
+    }
+
+    try {
+
+         $deleteWeekStmt = $db->prepare("DELETE FROM weeks WHERE id = ?");
+        $deleteWeekStmt->execute([$weekID]);
+
+        if ($deleteWeekStmt->rowCount() > 0) {
+            sendResponse(200, ['success' => true, 'message' => 'Week and associated comments deleted']);
+        } else {
+            sendResponse(500, ['success' => false, 'error' => 'Failed to delete week']);
+        }
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Database error during deletion']);
+    }
+
 }
 
 
