@@ -533,6 +533,24 @@ function getCommentsByWeek(PDO $db, $weekId): void
 
     // TODO: Fetch all rows. Return sendResponse with the array
     //       (empty array is valid).
+
+     if (!isset($weekID) || trim($weekID) === '' || !is_numeric($weekID)) {
+    sendResponse(400, ['success' => false, 'error' => 'Missing or invalid week_id']);
+    return;
+}
+
+     $query = "SELECT id, week_id, author, text, created_at FROM comments_week WHERE week_id = ? ORDER BY created_at ASC";
+
+     try {
+         $stmt = $db->prepare($query);
+        $stmt->execute([$weekId]);
+
+        $comments = $stmt->fetchAll();
+
+         sendResponse(200, ['success' => true, 'data' => $comments]);
+    } catch (PDOException $e) {
+        sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve comments']);
+    }
 }
 
 
