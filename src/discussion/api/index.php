@@ -1,6 +1,6 @@
 <?php
 /**
- * Discussion Board API - Final Implementation
+ * Discussion Board API - Final Corrected Version
  */
 
 // ============================================================================
@@ -45,14 +45,12 @@ function getAllTopics(PDO $db): void
     $query = "SELECT id, subject, message, author, created_at FROM topics";
     $params = [];
 
-    // Search filter
     if (!empty($_GET['search'])) {
         $search = $_GET['search'];
         $query .= " WHERE subject LIKE :search OR message LIKE :search OR author LIKE :search";
         $params['search'] = '%' . $search . '%';
     }
 
-    // Sorting
     $allowedSort = ['subject', 'author', 'created_at'];
     $sort = in_array($_GET['sort'] ?? '', $allowedSort) ? $_GET['sort'] : 'created_at';
     $order = (isset($_GET['order']) && strtolower($_GET['order']) === 'asc') ? 'ASC' : 'DESC';
@@ -109,6 +107,15 @@ function updateTopic(PDO $db, array $data): void
         sendResponse(['success' => false, 'message' => 'Missing ID'], 400);
     }
 
+    $id = (int)$data['id'];
+
+    // CRITICAL FIX: Check if topic exists to return 404 if unknown ID
+    $checkStmt = $db->prepare("SELECT id FROM topics WHERE id = ?");
+    $checkStmt->execute([$id]);
+    if (!$checkStmt->fetch()) {
+        sendResponse(['success' => false, 'message' => 'Topic not found'], 404);
+    }
+
     $fields = [];
     $params = [];
 
@@ -125,15 +132,11 @@ function updateTopic(PDO $db, array $data): void
         sendResponse(['success' => false, 'message' => 'Nothing to update'], 400);
     }
 
-    $params[] = (int)$data['id'];
+    $params[] = $id;
     $stmt = $db->prepare("UPDATE topics SET " . implode(', ', $fields) . " WHERE id = ?");
     $stmt->execute($params);
 
-    if ($stmt->rowCount() >= 0) { // Using >= 0 because no changes still counts as success in logic
-        sendResponse(['success' => true, 'message' => 'Updated']);
-    } else {
-        sendResponse(['success' => false, 'message' => 'Update failed'], 500);
-    }
+    sendResponse(['success' => true, 'message' => 'Updated']);
 }
 
 function deleteTopic(PDO $db, $id): void
@@ -179,7 +182,6 @@ function createReply(PDO $db, array $data): void
     $text    = sanitizeInput($data['text']);
     $author  = sanitizeInput($data['author']);
 
-    // Check if topic exists
     $check = $db->prepare("SELECT id FROM topics WHERE id = ?");
     $check->execute([$topicId]);
     if (!$check->fetch()) {
@@ -191,7 +193,6 @@ function createReply(PDO $db, array $data): void
 
     if ($stmt->rowCount() > 0) {
         $newId = (int)$db->lastInsertId();
-        // Fetch the new reply to return it
         $get = $db->prepare("SELECT * FROM replies WHERE id = ?");
         $get->execute([$newId]);
         sendResponse(['success' => true, 'message' => 'Reply added', 'id' => $newId, 'data' => $get->fetch(PDO::FETCH_ASSOC)], 201);
