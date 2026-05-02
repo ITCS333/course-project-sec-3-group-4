@@ -191,7 +191,7 @@ function getAllWeeks(PDO $db): void
         }
 
         // Return response
-        sendResponse(200, ['success' => true, 'data' => $weeks]);
+        sendResponse(['success' => true, 'data' => $weeks], 200);
     } catch (PDOException $e) {
         sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve weeks']);
     }
@@ -232,7 +232,7 @@ function getWeekById(PDO $db, $id): void
     // If not found, sendResponse error with HTTP 404.
     if ($week) {
         $week['links'] = json_decode($week['links'], true) ?? [];
-        sendResponse(200, ['success' => true, 'data' => $week]);
+        sendResponse(['success' => true, 'data' => $weeks], 200);
          } else {
             sendResponse(404, ['success' => false, 'error' => 'Week not found']);
          }
