@@ -1,16 +1,21 @@
+<!--
+  Requirement: Create the General Discussion Board
+  Instructions:
+  This page will list all discussion topics and include a form to create a new one.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Character encoding -->
+    <!-- Character encoding (UTF-8) -->
     <meta charset="UTF-8">
     
-    <!-- Responsive viewport tag -->
+    <!-- Responsive viewport meta tag -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Discussion Board</title>
 
-    <!-- Placeholder for CSS framework or stylesheet -->
-    <link rel="stylesheet" href="style.css">
+    <!-- Link to CSS - Assuming a common style.css or your framework -->
+    <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
 
@@ -19,24 +24,23 @@
     </header>
 
     <main>
-
         <!-- Section 1: Create a New Topic -->
-        <section id="new-topic">
+        <section id="new-topic-section">
             <h2>Start a New Topic</h2>
 
-            <form id="new-topic-form" action="#" method="POST">
+            <form id="new-topic-form" action="#">
                 <fieldset>
                     <legend>New Topic Details</legend>
 
-                    <p>
-                        <label for="topic-subject">Subject:</label><br>
-                        <input type="text" id="topic-subject" name="subject" required>
-                    </p>
+                    <label for="topic-subject">Subject:</label>
+                    <input id="topic-subject" type="text" name="subject" required>
 
-                    <p>
-                        <label for="topic-message">Message:</label><br>
-                        <textarea id="topic-message" name="message" rows="6" required></textarea>
-                    </p>
+                    <br><br>
+
+                    <label for="topic-message">Message:</label>
+                    <textarea id="topic-message" name="message" rows="6" required></textarea>
+
+                    <br><br>
 
                     <button id="create-topic" type="submit">Create Topic</button>
                 </fieldset>
@@ -46,67 +50,49 @@
         <hr>
 
         <!-- Section 2: Existing Topics -->
-        <section id="existing-topics">
+        <section id="topics-list-section">
             <h2>All Topics</h2>
             
-            <div class="topics-list">
+            <!-- Container to hold the list of topics -->
+            <div id="topics-container">
                 
                 <!-- Example Topic 1 -->
                 <article class="topic-item">
                     <h3>
-                        <a href="topic-detail.html">Question about CSS Flexbox</a>
+                        <a href="topic.html?id=1">Question about CSS Flexbox</a>
                     </h3>
                     
                     <footer>
-                        <small>Posted by: Alex Smith on 2024-05-20</small>
+                        <p>Posted by: Abdulaziz on 2026-05-02</p>
                     </footer>
 
-                    <div class="topic-actions">
-                        <button type="button">Edit</button>
-                        <button type="button">Delete</button>
+                    <div class="actions">
+                        <button class="edit-btn">Edit</button>
+                        <button class="delete-btn">Delete</button>
                     </div>
                 </article>
-
-                <hr>
 
                 <!-- Example Topic 2 -->
                 <article class="topic-item">
                     <h3>
-                        <a href="topic-detail.html">Best practices for JavaScript Async/Await</a>
+                        <a href="topic.html?id=2">How to use PHP PDO?</a>
                     </h3>
                     
                     <footer>
-                        <small>Posted by: Jordan Lee on 2024-05-21</small>
+                        <p>Posted by: Student Name on 2026-05-01</p>
                     </footer>
 
-                    <div class="topic-actions">
-                        <button type="button">Edit</button>
-                        <button type="button">Delete</button>
+                    <div class="actions">
+                        <button class="edit-btn">Edit</button>
+                        <button class="delete-btn">Delete</button>
                     </div>
                 </article>
 
-                <hr>
-
-                <!-- Example Topic 3 -->
-                <article class="topic-item">
-                    <h3>
-                        <a href="topic-detail.html">How to deploy a Node.js app?</a>
-                    </h3>
-                    
-                    <footer>
-                        <small>Posted by: Taylor Wong on 2024-05-22</small>
-                    </footer>
-
-                    <div class="topic-actions">
-                        <button type="button">Edit</button>
-                        <button type="button">Delete</button>
-                    </div>
-                </article>
-            
             </div>
         </section>
-
     </main>
 
+    <!-- Essential: Link to the JS file for functionality -->
+    <script src="board.js"></script>
 </body>
 </html>
