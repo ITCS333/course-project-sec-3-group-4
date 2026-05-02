@@ -1,30 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Character encoding -->
     <meta charset="UTF-8">
+    
+    <!-- Responsive viewport tag -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Discussion Board</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
-        header { background: #2c3e50; color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
-        h1 { margin: 0; }
-        section { background: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        fieldset { border: 1px solid #ddd; border-radius: 6px; padding: 20px; }
-        legend { font-weight: bold; color: #2c3e50; padding: 0 10px; }
-        label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
-        textarea { resize: vertical; }
-        button[type="submit"] { margin-top: 15px; background: #2c3e50; color: white; border: none; padding: 10px 25px; border-radius: 4px; cursor: pointer; font-size: 15px; }
-        button[type="submit"]:hover { background: #34495e; }
-        article { border: 1px solid #ddd; border-radius: 6px; padding: 15px; margin-bottom: 15px; background: #fafafa; }
-        article h3 { margin: 0 0 8px 0; }
-        article h3 a { color: #2c3e50; text-decoration: none; }
-        article h3 a:hover { text-decoration: underline; }
-        article footer { font-size: 13px; color: #777; margin: 8px 0; }
-        .topic-actions { margin-top: 10px; display: flex; gap: 10px; }
-        .btn-edit { background: #27ae60; color: white; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; }
-        .btn-delete { background: #e74c3c; color: white; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; }
-    </style>
+
+    <!-- Placeholder for CSS framework or stylesheet -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -35,59 +21,88 @@
     <main>
 
         <!-- Section 1: Create a New Topic -->
-        <section>
+        <section id="new-topic">
             <h2>Start a New Topic</h2>
-            <form id="new-topic-form" action="#">
+
+            <form id="new-topic-form" action="#" method="POST">
                 <fieldset>
                     <legend>New Topic Details</legend>
 
-                    <label for="topic-subject">Subject</label>
-                    <input type="text" id="topic-subject" name="topic-subject" placeholder="Enter topic subject" required>
+                    <p>
+                        <label for="topic-subject">Subject:</label><br>
+                        <input type="text" id="topic-subject" name="subject" required>
+                    </p>
 
-                    <label for="topic-message">Message</label>
-                    <textarea id="topic-message" name="topic-message" rows="6" placeholder="Write your message here..." required></textarea>
+                    <p>
+                        <label for="topic-message">Message:</label><br>
+                        <textarea id="topic-message" name="message" rows="6" required></textarea>
+                    </p>
 
                     <button id="create-topic" type="submit">Create Topic</button>
                 </fieldset>
             </form>
         </section>
 
+        <hr>
+
         <!-- Section 2: Existing Topics -->
-        <section>
+        <section id="existing-topics">
             <h2>All Topics</h2>
+            
+            <div class="topics-list">
+                
+                <!-- Example Topic 1 -->
+                <article class="topic-item">
+                    <h3>
+                        <a href="topic-detail.html">Question about CSS Flexbox</a>
+                    </h3>
+                    
+                    <footer>
+                        <small>Posted by: Alex Smith on 2024-05-20</small>
+                    </footer>
 
-            <div id="topics-container">
-
-                <!-- Topic 1 -->
-                <article>
-                    <h3><a href="topic-detail.html">Question about CSS Flexbox</a></h3>
-                    <footer>Posted by: Ahmed Ali on 2025-04-20</footer>
                     <div class="topic-actions">
-                        <button class="btn-edit">Edit</button>
-                        <button class="btn-delete">Delete</button>
+                        <button type="button">Edit</button>
+                        <button type="button">Delete</button>
                     </div>
                 </article>
 
-                <!-- Topic 2 -->
-                <article>
-                    <h3><a href="topic-detail.html">How to use JavaScript Arrays?</a></h3>
-                    <footer>Posted by: Sara Mohammed on 2025-04-22</footer>
+                <hr>
+
+                <!-- Example Topic 2 -->
+                <article class="topic-item">
+                    <h3>
+                        <a href="topic-detail.html">Best practices for JavaScript Async/Await</a>
+                    </h3>
+                    
+                    <footer>
+                        <small>Posted by: Jordan Lee on 2024-05-21</small>
+                    </footer>
+
                     <div class="topic-actions">
-                        <button class="btn-edit">Edit</button>
-                        <button class="btn-delete">Delete</button>
+                        <button type="button">Edit</button>
+                        <button type="button">Delete</button>
                     </div>
                 </article>
 
-                <!-- Topic 3 -->
-                <article>
-                    <h3><a href="topic-detail.html">Best resources to learn HTML and CSS</a></h3>
-                    <footer>Posted by: Omar Khalid on 2025-04-25</footer>
+                <hr>
+
+                <!-- Example Topic 3 -->
+                <article class="topic-item">
+                    <h3>
+                        <a href="topic-detail.html">How to deploy a Node.js app?</a>
+                    </h3>
+                    
+                    <footer>
+                        <small>Posted by: Taylor Wong on 2024-05-22</small>
+                    </footer>
+
                     <div class="topic-actions">
-                        <button class="btn-edit">Edit</button>
-                        <button class="btn-delete">Delete</button>
+                        <button type="button">Edit</button>
+                        <button type="button">Delete</button>
                     </div>
                 </article>
-
+            
             </div>
         </section>
 
