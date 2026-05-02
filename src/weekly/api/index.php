@@ -781,7 +781,7 @@ if ($action === 'comments' && $weekId !== '') {
     // TODO: Log the error with error_log().
     // Return a generic HTTP 500 — do NOT expose $e->getMessage() to clients.
  error_log($e->getMessage());
- 
+
  sendResponse(500, [
         'success' => false,
         'error' => 'Internal Server Error'
@@ -815,6 +815,11 @@ function sendResponse(array $data, int $statusCode = 200): void
     // TODO: http_response_code($statusCode);
     // TODO: echo json_encode($data, JSON_PRETTY_PRINT);
     // TODO: exit;
+    http_response_code($statusCode);
+
+     echo json_encode($data, JSON_PRETTY_PRINT);
+
+    exit;
 }
 
 
@@ -828,6 +833,8 @@ function validateDate(string $date): bool
 {
     // TODO: $d = DateTime::createFromFormat('Y-m-d', $date);
     // TODO: return $d && $d->format('Y-m-d') === $date;
+     $d = DateTime::createFromFormat('Y-m-d', $date);
+    return $d && $d->format('Y-m-d') === $date;
 }
 
 
@@ -840,4 +847,9 @@ function validateDate(string $date): bool
 function sanitizeInput(string $data): string
 {
     // TODO: return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
+
+    $data = trim($data);
+     $data = strip_tags($data);
+     $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+     return $data;
 }
