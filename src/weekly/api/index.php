@@ -703,6 +703,17 @@ try {
         // no parameters → all weeks (supports ?search, ?sort, ?order)
         // TODO: else call getAllWeeks($db)
 
+       $action = $_GET['action'] ?? '';
+$weekId = $_GET['week_id'] ?? '';
+$id = $_GET['id'] ?? '';
+
+if ($action === 'comments' && $weekId !== '') {
+    getCommentsByWeek($db, $weekId);
+} elseif ($id !== '') {
+    getWeekById($db, $id);
+} else {
+    getAllWeeks($db);
+}
     } elseif ($method === 'POST') {
 
         // ?action=comment → create a comment in comments_week
@@ -711,10 +722,29 @@ try {
         // no action → create a new week
         // TODO: else call createWeek($db, $data)
 
+    $action = $_GET['action'] ?? '';
+
+    
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    if ($action === 'comment') {
+        createComment($db, $data);
+    } else {
+        createWeek($db, $data);
+    }
+}
+
     } elseif ($method === 'PUT') {
 
         // Update a week; id comes from the JSON body
         // TODO: call updateWeek($db, $data)
+} elseif ($method === 'PUT') {
+
+    // get data from request body (JSON)
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    updateWeek($db, $data);
+
 
     } elseif ($method === 'DELETE') {
 
@@ -723,18 +753,50 @@ try {
 
         // ?id={id} → delete a week (and its comments via CASCADE)
         // TODO: else call deleteWeek($db, $id)
+        $action = $_GET['action'] ?? '';
+    $commentId = $_GET['comment_id'] ?? '';
+    $id = $_GET['id'] ?? '';
+
+    // delete single comment
+    if ($action === 'delete_comment' && $commentId !== '') {
+        deleteComment($db, $commentId);
+    } 
+    // delete week
+    elseif ($id !== '') {
+        deleteWeek($db, $id);
+    } 
+    // invalid request
+    else {
+        sendResponse(400, ['success' => false, 'error' => 'Missing id or comment_id']);
+    }
 
     } else {
         // TODO: sendResponse HTTP 405 Method Not Allowed.
-    }
-
-} catch (PDOException $e) {
+        sendResponse(405, [
+        'success' => false,
+        'error' => 'Method Not Allowed'
+    ]);
+    
+ }catch (PDOException $e) {
     // TODO: Log the error with error_log().
     // Return a generic HTTP 500 — do NOT expose $e->getMessage() to clients.
+ error_log($e->getMessage());
+ 
+ sendResponse(500, [
+        'success' => false,
+        'error' => 'Internal Server Error'
+    ]);
+
 
 } catch (Exception $e) {
     // TODO: Log the error with error_log().
     // Return HTTP 500 using sendResponse().
+    error_log($e->getMessage());
+
+    sendResponse(500, [
+        'success' => false,
+        'error' => 'Internal Server Error'
+    ]);
 }
 
 
