@@ -656,7 +656,7 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: Check that the comment exists in comments_week.
     // If not, sendResponse HTTP 404.
     try {
-        $checkStmt = $db->prepare("SELECT id FROM comments WHERE id = ?");
+        $checkStmt = $db->prepare("SELECT id FROM comments_week WHERE id = ?");
         $checkStmt->execute([$commentId]);
         if (!$checkStmt->fetch()) {
             sendResponse(404, ['success' => false, 'error' => 'Comment not found']);
@@ -672,7 +672,7 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
      try {
-        $deleteStmt = $db->prepare("DELETE FROM comments WHERE id = ?");
+        $deleteStmt = $db->prepare("DELETE FROM comments_week WHERE id = ?");
         $deleteStmt->execute([$commentId]);
 
         if ($deleteStmt->rowCount() > 0) {
