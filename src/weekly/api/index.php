@@ -276,7 +276,7 @@ function createWeek(PDO $db, array $data): void
 
     // TODO: If rowCount() > 0, sendResponse HTTP 201 with the new id.
     // Otherwise sendResponse HTTP 500.
-     $required = ['week_id', 'title', 'start_date'];
+     $required = ['title', 'start_date'];
     foreach ($required as $field) {
         if (!isset($data[$field]) || trim($data[$field]) === '') {
             sendResponse(400, ['success' => false, 'error' => "Missing or invalid field: $field"]);
@@ -284,7 +284,6 @@ function createWeek(PDO $db, array $data): void
         }
     }
 
-     $weekId     = trim($data['week_id']);
     $title      = trim($data['title']);
     $startDate  = trim($data['start_date']);
     $description = isset($data['description']) ? trim($data['description']) : "";
@@ -310,7 +309,7 @@ function createWeek(PDO $db, array $data): void
 
      $links = isset($data['links']) && is_array($data['links']) ? json_encode($data['links']) : json_encode([]);
 
-     $insertQuery = "INSERT INTO weeks (week_id, title, start_date, description, links) VALUES (?, ?, ?, ?, ?)";
+     $insertQuery = "INSERT INTO weeks (title, start_date, description, links) VALUES (?, ?, ?, ?, ?)";
 
      try {
         $insertStmt = $db->prepare($insertQuery);
@@ -734,11 +733,11 @@ if ($action === 'comments' && $weekId !== '') {
     }
 }
 
-    } elseif ($method === 'PUT') {
+ 
 
         // Update a week; id comes from the JSON body
         // TODO: call updateWeek($db, $data)
-} elseif ($method === 'PUT') {
+ } elseif ($method === 'PUT') {
 
     // get data from request body (JSON)
     $data = json_decode(file_get_contents("php://input"), true);
