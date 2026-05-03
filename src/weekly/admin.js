@@ -140,7 +140,7 @@ async function handleAddWeek(event) {
   event.preventDefault();
 
   const title = titleInput.value.trim();
-  const start_date = dateInput.value.trim(); 
+  const start_date = dateInput.value.trim();
   const description = descInput.value.trim();
 
   const linksRaw = linksInput.value.trim();
@@ -148,34 +148,46 @@ async function handleAddWeek(event) {
     ? linksRaw.split("\n").map(link => link.trim()).filter(link => link)
     : [];
 
-  if (!title) return;
+  if (!title || !start_date) {
+    alert("Please enter week title and start date.");
+    return;
+  }
 
-  const editId = submitButton.dataset.editId; 
+  const editId = submitButton.dataset.editId;
 
-  if (editId) {
-    // --- Update existing week ---
-    await handleUpdateWeek(editId, { title, start_date, description, links });
-    delete submitButton.dataset.editId;
-    submitButton.textContent = "Add Week";
-  } else {
-    // --- Create new week ---
-    const res = await fetch("./api/index.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, start_date, description, links })
-    });
-    const result = await res.json();
-    if (result.success) {
-      weeks.push({
-        id: result.id, 
-        title,
-        start_date,
-        description,
-        links
+  try {
+    if (editId) {
+      await handleUpdateWeek(editId, { title, start_date, description, links });
+      alert("Week updated successfully!");
+    } else {
+      const res = await fetch("./api/index.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, start_date, description, links })
       });
-      renderTable();
-      weekForm.reset();
+
+      const result = await res.json();
+      console.log("Add week response:", result);
+
+      if (result.success) {
+        weeks.push({
+          id: result.id,
+          title,
+          start_date,
+          description,
+          links
+        });
+
+        renderTable();
+        weekForm.reset();
+        alert("Week added successfully!");
+      } else {
+        alert(result.error || "Failed to add week.");
+      }
     }
+  } catch (error) {
+    console.error("Add week error:", error);
+    alert("Error adding week. Check Console.");
   }
 }
 
