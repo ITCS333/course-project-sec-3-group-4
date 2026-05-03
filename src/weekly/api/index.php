@@ -445,7 +445,6 @@ function updateWeek(PDO $db, array $data): void
  * Response (not found): HTTP 404.
  */
 function deleteWeek(PDO $db, $id): void
-{
     // TODO: Validate that $id is provided and numeric.
     // If not, sendResponse HTTP 400.
 
@@ -457,39 +456,33 @@ function deleteWeek(PDO $db, $id): void
 
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
+{
     if (!isset($id) || trim($id) === '' || !is_numeric($id)) {
-    sendResponse(['success' => false, 'error' => 'Missing or invalid week_id'], 400);
-    return;
-}
+        sendResponse(['success' => false, 'error' => 'Missing or invalid week_id'], 400);
+        return;
+    }
 
-$weekID = (int)$id;
+    $weekID = (int)$id;
 
     try {
-         $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ?");
+        $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ?");
         $checkStmt->execute([$weekID]);
+
         if (!$checkStmt->fetch()) {
             sendResponse(['success' => false, 'error' => 'Week not found'], 404);
             return;
         }
-    } catch (PDOException $e) {
-        sendResponse(['success' => false, 'error' => 'Database error during lookup'], 500);
-        return;
-    }
 
-    try {
-
-         $deleteWeekStmt = $db->prepare("DELETE FROM weeks WHERE id = ?");
+        $deleteWeekStmt = $db->prepare("DELETE FROM weeks WHERE id = ?");
         $deleteWeekStmt->execute([$weekID]);
 
-        if ($deleteWeekStmt->rowCount() > 0) {
-            sendResponse(['success' => true, 'message' => 'Week and associated comments deleted'], 200);
-        } else {
-            sendResponse(['success' => false, 'error' => 'Failed to delete week'], 500);
-        }
+        sendResponse(['success' => true, 'message' => 'Week and associated comments deleted'], 200);
+
     } catch (PDOException $e) {
+        error_log($e->getMessage());
         sendResponse(['success' => false, 'error' => 'Database error during deletion'], 500);
     }
-
+}
 
 // ============================================================================
 // COMMENTS FUNCTIONS
