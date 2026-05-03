@@ -1,5 +1,4 @@
 <?php
-session_start();
 $_SESSION['initialized'] = true;
 /**
  * Weekly Course Breakdown API
@@ -68,9 +67,11 @@ $_SESSION['initialized'] = true;
 // Allow HTTP methods: GET, POST, PUT, DELETE, OPTIONS.
 // Allow headers: Content-Type, Authorization.
 header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-$allowedMethods = 'GET, POST, PUT, DELETE, OPTIONS';
-$allowedHeaders = 'Content-Type, Authorization';
+
 
 // TODO: Handle preflight OPTIONS request.
 // If the request method is OPTIONS, return HTTP 200 and exit.
@@ -82,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // TODO: Include the shared database connection file.
 // require_once __DIR__ . '/../../common/db.php';
 require_once __DIR__ . '/../../common/db.php';
+
 
 $database = new Database();
 $db = $database->getConnection();
@@ -678,6 +680,10 @@ function deleteComment(PDO $db, $commentId): void
 // ============================================================================
 
 try {
+    $action = $_GET['action'] ?? '';
+    $id = $_GET['id'] ?? '';
+    $weekId = $_GET['week_id'] ?? '';
+    $commentId = $_GET['comment_id'] ?? '';
 
     if ($method === 'GET') {
 
@@ -690,17 +696,18 @@ try {
         // no parameters → all weeks (supports ?search, ?sort, ?order)
         // TODO: else call getAllWeeks($db)
 
-       $action = $_GET['action'] ?? '';
-$weekId = $_GET['week_id'] ?? '';
-$id = $_GET['id'] ?? '';
+      
 
-if ($action === 'comments' && $weekId !== '') {
-    getCommentsByWeek($db, $weekId);
-} elseif ($id !== '') {
-    getWeekById($db, $id);
-} else {
-    getAllWeeks($db);
-}
+ if ($method === 'GET') {
+
+        if ($action === 'comments' && $weekId !== '') {
+            getCommentsByWeek($db, $weekId);
+        } elseif ($id !== '') {
+            getWeekById($db, $id);
+        } else {
+            getAllWeeks($db);
+        }
+
     } elseif ($method === 'POST') {
 
         // ?action=comment → create a comment in comments_week
@@ -709,16 +716,11 @@ if ($action === 'comments' && $weekId !== '') {
         // no action → create a new week
         // TODO: else call createWeek($db, $data)
 
-    $action = $_GET['action'] ?? '';
-
-
-
-    if ($action === 'comment') {
-        createComment($db, $data);
-    } else {
-        createWeek($db, $data);
-    }
-}
+if ($action === 'comment') {
+            createComment($db, $data);
+        } else {
+            createWeek($db, $data);
+        }
 
  
 
@@ -738,39 +740,24 @@ if ($action === 'comments' && $weekId !== '') {
 
         // ?id={id} → delete a week (and its comments via CASCADE)
         // TODO: else call deleteWeek($db, $id)
-        $action = $_GET['action'] ?? '';
-    $commentId = $_GET['comment_id'] ?? '';
-    $id = $_GET['id'] ?? '';
-
-    // delete single comment
-    if ($action === 'delete_comment' && $commentId !== '') {
-        deleteComment($db, $commentId);
-    } 
-    // delete week
-    elseif ($id !== '') {
-        deleteWeek($db, $id);
-    } 
-    // invalid request
-    else {
-        sendResponse(['success' => false, 'error' => 'Missing id or comment_id'], 400);
-    }
+       if ($action === 'delete_comment' && $commentId !== '') {
+            deleteComment($db, $commentId);
+        } elseif ($id !== '') {
+            deleteWeek($db, $id);
+        } else {
+            sendResponse(['success' => false, 'error' => 'Missing id or comment_id'], 400);
+        }
 
     } else {
         // TODO: sendResponse HTTP 405 Method Not Allowed.
-        sendResponse([
-    'success' => false,
-    'error' => 'Method Not Allowed'
-], 405);
+        sendResponse(['success' => false, 'error' => 'Method Not Allowed'], 405);
     
  }catch (PDOException $e) {
     // TODO: Log the error with error_log().
     // Return a generic HTTP 500 — do NOT expose $e->getMessage() to clients.
  error_log($e->getMessage());
 
- sendResponse([
-    'success' => false,
-    'error' => 'Internal Server Error'
-], 500);
+ sendResponse(['success' => false, 'error' => 'Internal Server Error'], 500);
 
 
 } catch (Exception $e) {
@@ -778,10 +765,7 @@ if ($action === 'comments' && $weekId !== '') {
     // Return HTTP 500 using sendResponse().
     error_log($e->getMessage());
 
-   sendResponse([
-    'success' => false,
-    'error' => 'Internal Server Error'
-], 500);
+  sendResponse(['success' => false, 'error' => 'Internal Server Error'], 500);
 }
 
 
