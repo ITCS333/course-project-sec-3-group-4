@@ -110,7 +110,7 @@ $data = [];
 if ($rawBody !== false && $rawBody !== '') {
     $decoded = json_decode($rawBody, true);
     if (is_array($decoded)) {
-        $bodyData = $decoded;
+        $data = $decoded;
     }
 }
 $resource = isset($_GET['resource']) ? strtolower(trim($_GET['resource'])) : 'weeks';
@@ -193,7 +193,7 @@ function getAllWeeks(PDO $db): void
         // Return response
         sendResponse(['success' => true, 'data' => $weeks], 200);
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve weeks']);
+        sendResponse(['success' => false, 'error' => 'Failed to retrieve weeks'], 500);
     }
 }
 
@@ -213,7 +213,7 @@ function getWeekById(PDO $db, $id): void
     // TODO: Validate that $id is provided and numeric.
     // If not, call sendResponse with HTTP 400.
      if (!isset($id) || !is_numeric($id)) {
-        sendResponse(400, ['success' => false, 'error' => 'Missing or invalid id']);
+        sendResponse(['success' => false, 'error' => 'Missing or invalid id'], 400);
          return;
     }
 
@@ -232,12 +232,12 @@ function getWeekById(PDO $db, $id): void
     // If not found, sendResponse error with HTTP 404.
     if ($week) {
         $week['links'] = json_decode($week['links'], true) ?? [];
-        sendResponse(['success' => true, 'data' => $weeks], 200);
+        sendResponse(['success' => true, 'data' => $week], 200);
          } else {
-            sendResponse(404, ['success' => false, 'error' => 'Week not found']);
+            sendResponse(['success' => false, 'error' => 'Week not found'], 404);
          }
          } catch (PDOException $e) {
-            sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve week']);
+            sendResponse(['success' => false, 'error' => 'Failed to retrieve week'], 500);
          }
 }
 
@@ -279,7 +279,7 @@ function createWeek(PDO $db, array $data): void
      $required = ['title', 'start_date'];
     foreach ($required as $field) {
         if (!isset($data[$field]) || trim($data[$field]) === '') {
-            sendResponse(400, ['success' => false, 'error' => "Missing or invalid field: $field"]);
+            sendResponse(['success' => false, 'error' => "Missing or invalid field: $field"], 400);
             return;
         }
     }
@@ -290,43 +290,31 @@ function createWeek(PDO $db, array $data): void
 
      $dateObj = DateTime::createFromFormat('Y-m-d', $startDate);
     if (!$dateObj || $dateObj->format('Y-m-d') !== $startDate) {
-        sendResponse(400, ['success' => false, 'error' => 'Invalid start_date format. Use YYYY-MM-DD']);
+        sendResponse(['success' => false, 'error' => 'Invalid start_date format. Use YYYY-MM-DD'], 400);
         return;
     }
 
-     try {
-        $checkQuery = "SELECT id FROM weeks WHERE week_id = ?";
-        $checkStmt = $db->prepare($checkQuery);
-        $checkStmt->execute([$weekId]);
-        if ($checkStmt->fetch()) {
-            sendResponse(409, ['success' => false, 'error' => 'Week ID already exists']);
-            return;
-        }
-    } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Database error during duplicate check']);
-        return;
-    }
+     
 
      $links = isset($data['links']) && is_array($data['links']) ? json_encode($data['links']) : json_encode([]);
 
-     $insertQuery = "INSERT INTO weeks (title, start_date, description, links) VALUES (?, ?, ?, ?, ?)";
+    $insertQuery = "INSERT INTO weeks (title, start_date, description, links) VALUES (?, ?, ?, ?)";
 
      try {
         $insertStmt = $db->prepare($insertQuery);
-        $insertStmt->execute([$weekId, $title, $startDate, $description, $links]);
+        $insertStmt->execute([$title, $startDate, $description, $links]);
 
         // Return success response
-        $newWeek = [
-            'week_id'    => $weekId,
-            'title'      => $title,
-            'start_date' => $startDate,
-            'description'=> $description,
-            'links'      => json_decode($links, true),
-        ];
+       $newWeek = [
+    'title'      => $title,
+    'start_date' => $startDate,
+    'description'=> $description,
+    'links'      => json_decode($links, true),
+];
 
-        sendResponse(201, ['success' => true, 'data' => $newWeek]);
+        sendResponse(['success' => true, 'data' => $newWeek], 201);
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Failed to create week']);
+        sendResponse(['success' => false, 'error' => 'Failed to create week'], 500);
     }
 }
 
@@ -367,21 +355,21 @@ function updateWeek(PDO $db, array $data): void
 
     // TODO: sendResponse HTTP 200 on success, HTTP 500 on failure.
     if (!isset($data['id']) || trim($data['id']) === '') {
-        sendResponse(400, ['success' => false, 'error' => 'Missing or invalid week_id']);
+        sendResponse(['success' => false, 'error' => 'Missing or invalid week_id'], 400);
         return;
     }
 
     $id = trim($data['id']);
 
      try {
-        $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ? = ?");
-        $checkStmt->execute([$weekId]);
+        $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ?");
+        $checkStmt->execute([$id]);
         if (!$checkStmt->fetch()) {
-            sendResponse(404, ['success' => false, 'error' => 'Week not found']);
+            sendResponse(['success' => false, 'error' => 'Week not found'], 404);
             return;
         }
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Database error during lookup']);
+        sendResponse(['success' => false, 'error' => 'Database error during lookup'], 500);
         return;
     }
 
@@ -397,7 +385,7 @@ function updateWeek(PDO $db, array $data): void
         $startDate = trim($data['start_date']);
         $dateObj = DateTime::createFromFormat('Y-m-d', $startDate);
         if (!$dateObj || $dateObj->format('Y-m-d') !== $startDate) {
-            sendResponse(400, ['success' => false, 'error' => 'Invalid start_date format. Use YYYY-MM-DD']);
+            sendResponse(['success' => false, 'error' => 'Invalid start_date format. Use YYYY-MM-DD'], 400);
             return;
         }
         $setClauses[] = "start_date = ?";
@@ -416,32 +404,32 @@ function updateWeek(PDO $db, array $data): void
     }
 
     if (empty($setClauses)) {
-        sendResponse(400, ['success' => false, 'error' => 'No fields provided for update']);
+        sendResponse(['success' => false, 'error' => 'No fields provided for update'], 400);
         return;
     }
 
     $setClauses[] = "updated_at = CURRENT_TIMESTAMP";
 
     $query = "UPDATE weeks SET " . implode(', ', $setClauses) . " WHERE id = ? ";
-    $values[] = $Id;
+    $values[] = $id;
 
      try {
         $stmt = $db->prepare($query);
         $stmt->execute($values);
 
         // Return updated data
-        $getStmt = $db->prepare("SELECT week_id, title, start_date, description, links, created_at, updated_at FROM weeks WHERE id = ?");
-        $getStmt->execute([$Id]);
+        $getStmt = $db->prepare("SELECT id, title, start_date, description, links, created_at, updated_at FROM weeks WHERE id = ?");
+        $getStmt->execute([$id]);
         $updatedWeek = $getStmt->fetch();
 
         if ($updatedWeek) {
             $updatedWeek['links'] = json_decode($updatedWeek['links'], true) ?? [];
-            sendResponse(200, ['success' => true, 'data' => $updatedWeek]);
+            sendResponse(['success' => true, 'data' => $updatedWeek], 200);
         } else {
-            sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve updated week']);
+            sendResponse(['success' => false, 'error' => 'Failed to retrieve updated week'], 500);
         }
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Failed to update week']);
+        sendResponse(['success' => false, 'error' => 'Failed to update week'], 500);
     }
 }
 
@@ -472,21 +460,21 @@ function deleteWeek(PDO $db, $id): void
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
     if (!isset($id) || trim($id) === '' || !is_numeric($id)) {
-    sendResponse(400, ['success' => false, 'error' => 'Missing or invalid week_id']);
+    ssendResponse(['success' => false, 'error' => 'Missing or invalid week_id'], 400);
     return;
 }
 
-$weekID = (int)$id;
+$weekID = (int)$id;{
 
     try {
          $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ?");
-        $checkStmt->execute([$weekId]);
+        $checkStmt->execute([$weekID]);
         if (!$checkStmt->fetch()) {
-            sendResponse(404, ['success' => false, 'error' => 'Week not found']);
+            sendResponse(['success' => false, 'error' => 'Week not found'], 404);
             return;
         }
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Database error during lookup']);
+        sendResponse(['success' => false, 'error' => 'Database error during lookup'], 500);
         return;
     }
 
@@ -496,12 +484,12 @@ $weekID = (int)$id;
         $deleteWeekStmt->execute([$weekID]);
 
         if ($deleteWeekStmt->rowCount() > 0) {
-            sendResponse(200, ['success' => true, 'message' => 'Week and associated comments deleted']);
+            sendResponse(['success' => true, 'message' => 'Week and associated comments deleted'], 200);
         } else {
-            sendResponse(500, ['success' => false, 'error' => 'Failed to delete week']);
+            sendResponse(['success' => false, 'error' => 'Failed to delete week'], 500);
         }
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Database error during deletion']);
+        sendResponse(['success' => false, 'error' => 'Database error during deletion'], 500);
     }
 
 }
@@ -533,8 +521,8 @@ function getCommentsByWeek(PDO $db, $weekId): void
     // TODO: Fetch all rows. Return sendResponse with the array
     //       (empty array is valid).
 
-     if (!isset($weekID) || trim($weekID) === '' || !is_numeric($weekID)) {
-    sendResponse(400, ['success' => false, 'error' => 'Missing or invalid week_id']);
+     if (!isset($weekId) || trim($weekId) === '' || !is_numeric($weekId)) {
+    sendResponse(['success' => false, 'error' => 'Missing or invalid week_id'], 400);
     return;
 }
 
@@ -546,9 +534,9 @@ function getCommentsByWeek(PDO $db, $weekId): void
 
         $comments = $stmt->fetchAll();
 
-         sendResponse(200, ['success' => true, 'data' => $comments]);
+         sendResponse(['success' => true, 'data' => $comments], 200);
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Failed to retrieve comments']);
+        sendResponse(['success' => false, 'error' => 'Failed to retrieve comments'], 500);
     }
 }
 
@@ -585,14 +573,14 @@ function createComment(PDO $db, array $data): void
     $required = ['week_id', 'author', 'text'];
     foreach ($required as $field) {
         if (!isset($data[$field]) || trim($data[$field]) === '') {
-            sendResponse(400, ['success' => false, 'error' => "Missing or invalid field: $field"]);
+            sendResponse(['success' => false, 'error' => "Missing or invalid field: $field"], 400);
             return;
         }
     }
 
      $weekId = trim($data['week_id']);
      if (!is_numeric($weekId)) {
-    sendResponse(400, ['success' => false, 'error' => 'Invalid week_id']);
+    sendResponse(['success' => false, 'error' => 'Invalid week_id'], 400);
     return;
 }
 $weekId = (int)$weekId;
@@ -601,7 +589,7 @@ $weekId = (int)$weekId;
     $text   = trim($data['text']);
 
      if ($text === '') {
-        sendResponse(400, ['success' => false, 'error' => 'Comment text cannot be empty']);
+        sendResponse(['success' => false, 'error' => 'Comment text cannot be empty'], 400);
         return;
     }
 
@@ -609,11 +597,11 @@ $weekId = (int)$weekId;
         $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ?");
         $checkStmt->execute([$weekId]);
         if (!$checkStmt->fetch()) {
-            sendResponse(404, ['success' => false, 'error' => 'Week not found']);
+            sendResponse(['success' => false, 'error' => 'Week not found'], 404);
             return;
         }
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Database error during week lookup']);
+        sendResponse(['success' => false, 'error' => 'Database error during week lookup'], 500);
         return;
     }
 
@@ -629,9 +617,9 @@ $weekId = (int)$weekId;
         $getStmt->execute([$commentId]);
         $newComment = $getStmt->fetch();
 
-        sendResponse(201, ['success' => true, 'data' => $newComment]);
+        sendResponse(['success' => true, 'data' => $newComment], 201);
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Failed to create comment']);
+        sendResponse(['success' => false, 'error' => 'Failed to create comment'], 500);
     }
 }
 
@@ -648,7 +636,7 @@ function deleteComment(PDO $db, $commentId): void
     // TODO: Validate that $commentId is provided and numeric.
     // If not, sendResponse HTTP 400.
      if (!$commentId || !is_numeric($commentId)) {
-        sendResponse(400, ['success' => false, 'error' => 'Missing or invalid comment ID']);
+       sendResponse(['success' => false, 'error' => 'Missing or invalid comment ID'], 400);
         return;
     }
 
@@ -658,11 +646,11 @@ function deleteComment(PDO $db, $commentId): void
         $checkStmt = $db->prepare("SELECT id FROM comments_week WHERE id = ?");
         $checkStmt->execute([$commentId]);
         if (!$checkStmt->fetch()) {
-            sendResponse(404, ['success' => false, 'error' => 'Comment not found']);
+            sendResponse(['success' => false, 'error' => 'Comment not found'], 404);
             return;
         }
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Database error during lookup']);
+        sendResponse(['success' => false, 'error' => 'Database error during lookup'], 500);
         return;
     }
 
@@ -675,12 +663,12 @@ function deleteComment(PDO $db, $commentId): void
         $deleteStmt->execute([$commentId]);
 
         if ($deleteStmt->rowCount() > 0) {
-            sendResponse(200, ['success' => true, 'message' => 'Comment deleted successfully']);
+            sendResponse(['success' => true, 'message' => 'Comment deleted successfully'], 200);
         } else {
-            sendResponse(500, ['success' => false, 'error' => 'Failed to delete comment']);
+           sendResponse(['success' => false, 'error' => 'Failed to delete comment'], 500);
         }
     } catch (PDOException $e) {
-        sendResponse(500, ['success' => false, 'error' => 'Database error during deletion']);
+        sendResponse(['success' => false, 'error' => 'Database error during deletion'], 500);
     }
 }
 
@@ -723,8 +711,7 @@ if ($action === 'comments' && $weekId !== '') {
 
     $action = $_GET['action'] ?? '';
 
-    
-    $data = json_decode(file_get_contents("php://input"), true);
+
 
     if ($action === 'comment') {
         createComment($db, $data);
@@ -740,7 +727,6 @@ if ($action === 'comments' && $weekId !== '') {
  } elseif ($method === 'PUT') {
 
     // get data from request body (JSON)
-    $data = json_decode(file_get_contents("php://input"), true);
 
     updateWeek($db, $data);
 
@@ -766,25 +752,25 @@ if ($action === 'comments' && $weekId !== '') {
     } 
     // invalid request
     else {
-        sendResponse(400, ['success' => false, 'error' => 'Missing id or comment_id']);
+        sendResponse(['success' => false, 'error' => 'Missing id or comment_id'], 400);
     }
 
     } else {
         // TODO: sendResponse HTTP 405 Method Not Allowed.
-        sendResponse(405, [
-        'success' => false,
-        'error' => 'Method Not Allowed'
-    ]);
+        sendResponse([
+    'success' => false,
+    'error' => 'Method Not Allowed'
+], 405);
     
  }catch (PDOException $e) {
     // TODO: Log the error with error_log().
     // Return a generic HTTP 500 — do NOT expose $e->getMessage() to clients.
  error_log($e->getMessage());
 
- sendResponse(500, [
-        'success' => false,
-        'error' => 'Internal Server Error'
-    ]);
+ sendResponse([
+    'success' => false,
+    'error' => 'Internal Server Error'
+], 500);
 
 
 } catch (Exception $e) {
@@ -792,10 +778,10 @@ if ($action === 'comments' && $weekId !== '') {
     // Return HTTP 500 using sendResponse().
     error_log($e->getMessage());
 
-    sendResponse(500, [
-        'success' => false,
-        'error' => 'Internal Server Error'
-    ]);
+   sendResponse([
+    'success' => false,
+    'error' => 'Internal Server Error'
+], 500);
 }
 
 
