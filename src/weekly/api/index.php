@@ -303,14 +303,14 @@ function createWeek(PDO $db, array $data): void
         $insertStmt->execute([$title, $startDate, $description, $links]);
 
         // Return success response
-       $newWeek = [
-    'title'      => $title,
-    'start_date' => $startDate,
-    'description'=> $description,
-    'links'      => json_decode($links, true),
-];
+      $newId = (int)$db->lastInsertId();
 
-        sendResponse(['success' => true, 'data' => $newWeek], 201);
+sendResponse([
+    'success' => true,
+    'message' => 'Week created successfully',
+    'id' => $newId
+], 201);
+
     } catch (PDOException $e) {
         sendResponse(['success' => false, 'error' => 'Failed to create week'], 500);
     }
@@ -606,7 +606,12 @@ $weekId = (int)$weekId;
         $getStmt->execute([$commentId]);
         $newComment = $getStmt->fetch();
 
-        sendResponse(['success' => true, 'data' => $newComment], 201);
+        sendResponse([
+    'success' => true,
+    'message' => 'Comment created successfully',
+    'id' => (int)$commentId,
+    'data' => $newComment
+], 201);
     } catch (PDOException $e) {
         sendResponse(['success' => false, 'error' => 'Failed to create comment'], 500);
     }
