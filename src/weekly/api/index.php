@@ -458,11 +458,11 @@ function deleteWeek(PDO $db, $id): void
     // TODO: If rowCount() > 0, sendResponse HTTP 200.
     // Otherwise sendResponse HTTP 500.
     if (!isset($id) || trim($id) === '' || !is_numeric($id)) {
-    ssendResponse(['success' => false, 'error' => 'Missing or invalid week_id'], 400);
+    sendResponse(['success' => false, 'error' => 'Missing or invalid week_id'], 400);
     return;
 }
 
-$weekID = (int)$id;{
+$weekID = (int)$id;
 
     try {
          $checkStmt = $db->prepare("SELECT id FROM weeks WHERE id = ?");
@@ -489,8 +489,6 @@ $weekID = (int)$id;{
     } catch (PDOException $e) {
         sendResponse(['success' => false, 'error' => 'Database error during deletion'], 500);
     }
-
-}
 
 
 // ============================================================================
@@ -683,19 +681,6 @@ try {
 
     if ($method === 'GET') {
 
-        // ?action=comments&week_id={id} → list comments for a week
-        // TODO: if $action === 'comments', call getCommentsByWeek($db, $weekId)
-
-        // ?id={id} → single week
-        // TODO: elseif $id is set, call getWeekById($db, $id)
-
-        // no parameters → all weeks (supports ?search, ?sort, ?order)
-        // TODO: else call getAllWeeks($db)
-
-      
-
- if ($method === 'GET') {
-
         if ($action === 'comments' && $weekId !== '') {
             getCommentsByWeek($db, $weekId);
         } elseif ($id !== '') {
@@ -706,37 +691,19 @@ try {
 
     } elseif ($method === 'POST') {
 
-        // ?action=comment → create a comment in comments_week
-        // TODO: if $action === 'comment', call createComment($db, $data)
-
-        // no action → create a new week
-        // TODO: else call createWeek($db, $data)
-
-if ($action === 'comment') {
+        if ($action === 'comment') {
             createComment($db, $data);
         } else {
             createWeek($db, $data);
         }
 
- 
+    } elseif ($method === 'PUT') {
 
-        // Update a week; id comes from the JSON body
-        // TODO: call updateWeek($db, $data)
- } elseif ($method === 'PUT') {
-
-    // get data from request body (JSON)
-
-    updateWeek($db, $data);
-
+        updateWeek($db, $data);
 
     } elseif ($method === 'DELETE') {
 
-        // ?action=delete_comment&comment_id={id} → delete one comment
-        // TODO: if $action === 'delete_comment', call deleteComment($db, $commentId)
-
-        // ?id={id} → delete a week (and its comments via CASCADE)
-        // TODO: else call deleteWeek($db, $id)
-       if ($action === 'delete_comment' && $commentId !== '') {
+        if ($action === 'delete_comment' && $commentId !== '') {
             deleteComment($db, $commentId);
         } elseif ($id !== '') {
             deleteWeek($db, $id);
@@ -745,23 +712,16 @@ if ($action === 'comment') {
         }
 
     } else {
-        // TODO: sendResponse HTTP 405 Method Not Allowed.
         sendResponse(['success' => false, 'error' => 'Method Not Allowed'], 405);
-    
- }catch (PDOException $e) {
-    // TODO: Log the error with error_log().
-    // Return a generic HTTP 500 — do NOT expose $e->getMessage() to clients.
- error_log($e->getMessage());
+    }
 
- sendResponse(['success' => false, 'error' => 'Internal Server Error'], 500);
-
+} catch (PDOException $e) {
+    error_log($e->getMessage());
+    sendResponse(['success' => false, 'error' => 'Internal Server Error'], 500);
 
 } catch (Exception $e) {
-    // TODO: Log the error with error_log().
-    // Return HTTP 500 using sendResponse().
     error_log($e->getMessage());
-
-  sendResponse(['success' => false, 'error' => 'Internal Server Error'], 500);
+    sendResponse(['success' => false, 'error' => 'Internal Server Error'], 500);
 }
 
 
