@@ -1,5 +1,4 @@
 <?php
-$_SESSION['initialized'] = true;
 /**
  * Weekly Course Breakdown API
  *
@@ -85,10 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/../../common/db.php';
 
 
-$database = new Database();
-$db = $database->getConnection();
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+$db = getDBConnection();
 // TODO: Get the PDO database connection.
 // $db = getDBConnection();
 
