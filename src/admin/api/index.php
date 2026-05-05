@@ -103,27 +103,27 @@ $order = $_GET['order'] ?? 'asc';
 function getUsers($db) {
     // TODO: Build a SELECT query for id, name, email, is_admin, created_at.
     //       Do NOT select the password column.
-    $sql = "SELECT id, name, email, is_admin, created_at FROM users";
-
+    $query = "SELECT id, name, email, is_admin, created_at FROM users";
     // TODO: If the 'search' query parameter is present, append a WHERE clause:
     //       WHERE name LIKE :search OR email LIKE :search
     //       Wrap the search term with '%' wildcards when binding.
-    if ($search) {
-        $sql .= " WHERE name LIKE :search OR email LIKE :search";
-        $searchTerm = '%' . $search . '%';
+    if(isset($_GET['search']) && !empty($_GET['search'])) {
+        $query .= " WHERE name LIKE :search OR email LIKE :search";
+        $searchTerm = '%' . $_GET['search'] . '%';
     }
 
     // TODO: If the 'sort' query parameter is present and is one of the allowed
     //       fields (name, email, is_admin), append an ORDER BY clause.
     //       If 'order' is 'desc', use DESC; otherwise default to ASC.
     $allowedSortFields = ['name', 'email', 'is_admin'];
-    if ($sort && in_array($sort, $allowedSortFields, true)) {
-        $orderDirection = (strtolower($order) === 'desc') ? 'DESC' : 'ASC';
-        $sql .= " ORDER BY $sort $orderDirection";
+    if (isset($_GET['sort']) && in_array($_GET['sort'], $allowedSortFields)) {
+        $sortField = $_GET['sort'];
+        $sortOrder = (isset($_GET['order']) && strtolower($_GET['order']) === 'desc') ? 'DESC' : 'ASC';
+        $query .= " ORDER BY $sortField $sortOrder";
     }
 
     // TODO: Prepare the statement, bind any parameters, and execute.
-    $stmt = $db->prepare($sql);
+    $stmt = $db->prepare($query);
     if ($search) {
         $stmt->bindValue(':search', $searchTerm, PDO::PARAM_STR);
     }
