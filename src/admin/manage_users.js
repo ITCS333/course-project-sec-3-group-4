@@ -122,21 +122,27 @@ function handleChangePassword(event) {
     alert("Password must be at least 8 characters.");
     return;
   }
-  document.getElementById("current-password").value = "";
-  document.getElementById("new-password").value = "";
-  document.getElementById("confirm-password").value = "";
-
-  post("../api/index.php?action=change_password", { 
-    id: id, 
-    current_password: currentPassword, 
-    new_password: newPassword 
+  fetch("../api/index.php?action=change_password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: id,
+      current_password: currentPassword,
+      new_password: newPassword
+    })
   })
+    .then(response => response.json())
     .then(data => {
       if (data.success) {
         alert("Password updated successfully!");
+        document.getElementById("current-password").value = "";
+        document.getElementById("new-password").value = "";
+        document.getElementById("confirm-password").value = "";
       }
       else {
-        alert(data.message);
+        alert(response.message);
       }
     });
   }
