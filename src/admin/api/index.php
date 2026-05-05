@@ -55,7 +55,7 @@ if ($method === 'OPTIONS') {
 // TODO: Include the database connection file.
 // Assume a function getDBConnection() is available that returns a PDO instance
 // configured for the 'course' database (see schema.sql).
-require_once 'db_connection.php';
+require_once __DIR__ . '/../../common/db.php';
 
 
 // TODO: Get the PDO database connection by calling getDBConnection().
@@ -117,18 +117,21 @@ function getUsers($db) {
     //       fields (name, email, is_admin), append an ORDER BY clause.
     //       If 'order' is 'desc', use DESC; otherwise default to ASC.
     $allowedSortFields = ['name', 'email', 'is_admin'];
-    if ($sort && in_array($sort, $allowedSortFields)) {
+    if ($sort && in_array($sort, $allowedSortFields, true)) {
         $orderDirection = (strtolower($order) === 'desc') ? 'DESC' : 'ASC';
         $sql .= " ORDER BY $sort $orderDirection";
     }
+
     // TODO: Prepare the statement, bind any parameters, and execute.
     $stmt = $db->prepare($sql);
     if ($search) {
         $stmt->bindValue(':search', $searchTerm, PDO::PARAM_STR);
     }
     $stmt->execute();
+
     // TODO: Fetch all rows as an associative array.
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     // TODO: Call sendResponse() with the array and HTTP status 200.
     sendResponse($users, 200);
 }
