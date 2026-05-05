@@ -109,9 +109,11 @@ function renderTable(userArray) {
 function handleChangePassword(event) {
   // ... your implementation here ...
   event.preventDefault();
+
   const currentPassword = document.getElementById("current-password").value;
   const newPassword = document.getElementById("new-password").value;
   const confirmPassword = document.getElementById("confirm-password").value;
+
   if (newPassword !== confirmPassword) {
     alert("Passwords do not match.");
     return;
@@ -120,14 +122,15 @@ function handleChangePassword(event) {
     alert("Password must be at least 8 characters.");
     return;
   }
-  postrequest("admin/api/index.php?action=change_password", { current_password: currentPassword, new_password: newPassword })
+  postrequest("api/index.php?action=change_password", { current_password: currentPassword, new_password: newPassword })
     .then(response => {
       if (response.success) {
         alert("Password updated successfully!");
         document.getElementById("current-password").value = "";
         document.getElementById("new-password").value = "";
         document.getElementById("confirm-password").value = "";
-      } else {
+      } 
+      else {
         alert(response.message);
       }
     });
@@ -161,7 +164,7 @@ function handleAddUser(event) {
   if(password.length < 8){
     alert("Password must be at least 8 characters.")
   }
-  postrequest("admin/api/index.php", { name, email, password, is_admin: isadmin })
+  postrequest("api/index.php", { name, email, password, is_admin: isadmin })
     .then(response => {
       if (response.success) {
         loadUsersAndInitialize();
@@ -195,7 +198,7 @@ function handleTableClick(event) {
   // ... your implementation here ...
   if (event.target.classList.contains("delete-btn")) {
     const id = event.target.getAttribute("data-id");
-    fetch(`admin/api/index.php?id=${id}`, { method: "DELETE" })
+    fetch(`api/index.php?id=${id}`, { method: "DELETE" })
       .then(response => response.json())
       .then(data => {
         if (data.success) {
@@ -294,7 +297,7 @@ function handleSort(event) {
 async function loadUsersAndInitialize() {
   // ... your implementation here ...
   try {
-    const response = await fetch('../api/index.php');
+    const response = await fetch('api/index.php');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

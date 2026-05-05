@@ -36,25 +36,40 @@
 // Allow cross-origin requests (CORS) if needed.
 // Allow specific HTTP methods: GET, POST, PUT, DELETE, OPTIONS.
 // Allow specific headers: Content-Type, Authorization.
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 
 // TODO: Handle preflight OPTIONS request.
 // If the request method is OPTIONS, return HTTP 200 and exit.
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+if ($method === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 
 // TODO: Include the database connection file.
 // Assume a function getDBConnection() is available that returns a PDO instance
 // configured for the 'course' database (see schema.sql).
+require_once 'db_connection.php';
 
 
 // TODO: Get the PDO database connection by calling getDBConnection().
+$db = getDBConnection();
 
 
 // TODO: Read the HTTP request method from $_SERVER['REQUEST_METHOD'].
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 
 // TODO: Read the raw request body for POST and PUT requests.
 // Use file_get_contents('php://input') and decode with json_decode($raw, true).
+$raw = file_get_contents('php://input');
+$data = json_decode($raw, true);
 
 
 // TODO: Read query string parameters.
@@ -64,7 +79,11 @@
 //   - search        (string) : free-text filter for GET requests
 //   - sort          (string) : field name to sort by
 //   - order         (string) : 'asc' or 'desc'
-
+$id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+$action = $_GET['action'] ?? null;
+$search = $_GET['search'] ?? null;
+$sort = $_GET['sort'] ?? null;
+$order = $_GET['order'] ?? 'asc';
 
 /**
  * Function: Get all users, or search/filter users.
@@ -84,10 +103,15 @@
 function getUsers($db) {
     // TODO: Build a SELECT query for id, name, email, is_admin, created_at.
     //       Do NOT select the password column.
+    $sql = "SELECT id, name, email, is_admin, created_at FROM users";
 
     // TODO: If the 'search' query parameter is present, append a WHERE clause:
     //       WHERE name LIKE :search OR email LIKE :search
     //       Wrap the search term with '%' wildcards when binding.
+        if ($search) {
+            $sql .= " WHERE name LIKE :search OR email LIKE :search";
+            $searchTerm = '%' . $search . '%';
+        }
 
     // TODO: If the 'sort' query parameter is present and is one of the allowed
     //       fields (name, email, is_admin), append an ORDER BY clause.
