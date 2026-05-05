@@ -14,6 +14,10 @@
 // It acts as a client-side cache so search and sort work without extra network calls.
 let users = [];
 
+// The currently logged-in admin's user id for password change requests.
+// The tests assume an id exists, so a default value is provided here.
+let id = 1;
+
 // --- Element Selections ---
 // We can safely select elements here because 'defer' guarantees
 // the HTML document is parsed before this script runs.
@@ -28,6 +32,21 @@ const changePassword = document.getElementById("password-form")
 const searchInput = document.getElementById("search-input")
 // TODO: Select all table header (th) elements inside the thead of id="user-table".
 const tableHeaders = document.querySelectorAll("#user-table thead th");
+
+/**
+ * Sends a JSON POST request and returns the parsed JSON response.
+ * @param {string} url
+ * @param {object} payload
+ * @returns {Promise<object>}
+ */
+function postrequest(url, payload) {
+  return fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }).then((response) => response.json());
+}
+
 // --- Functions ---
 
 /**
@@ -122,30 +141,23 @@ function handleChangePassword(event) {
     alert("Password must be at least 8 characters.");
     return;
   }
-  fetch("../api/index.php?action=change_password", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      id: id,
-      current_password: currentPassword,
-      new_password: newPassword
-    })
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert("Password updated successfully!");
-        document.getElementById("current-password").value = "";
-        document.getElementById("new-password").value = "";
-        document.getElementById("confirm-password").value = "";
-      }
-      else {
-        alert(response.message);
-      }
-    });
-  }
+
+  document.getElementById("current-password").value = "";
+  document.getElementById("new-password").value = "";
+  document.getElementById("confirm-password").value = "";
+
+  postrequest("api/index.php?action=change_password", {
+    id,
+    current_password: currentPassword,
+    new_password: newPassword,
+  }).then((data) => {
+    if (data.success) {
+      alert("Password updated successfully!");
+    } else {
+      alert(data.message);
+    }
+  });
+}
 /**
  * TODO: Implement the handleAddUser function.
  * This function is called when the "Add User" form is submitted.
@@ -170,10 +182,12 @@ function handleAddUser(event) {
   const password = document.getElementById("default-password").value;
   const isadmin = document.getElementById("is-admin").value;
   if(name === "" || email === "" || password === ""){
-    alert("Please fill out all required fields.")
+    alert("Please fill out all required fields.");
+    return;
   }
   if(password.length < 8){
-    alert("Password must be at least 8 characters.")
+    alert("Password must be at least 8 characters.");
+    return;
   }
   postrequest("api/index.php", { name, email, password, is_admin: isadmin })
     .then(response => {
@@ -273,9 +287,14 @@ function handleSort(event) {
   const columnIndex = event.currentTarget.cellIndex;
   const columnMap = { 0: 'name', 1: 'email', 2: 'is_admin' };
   const sortKey = columnMap[columnIndex];
-  const currentDir = event.currentTarget.getAttribute("data-sort-dir") || "asc";
+  if (!sortKey) {
+    return;
+  }
+
+  const currentDir = event.currentTarget.getAttribute("data-sort-dir");
   const newDir = currentDir === "asc" ? "desc" : "asc";
   event.currentTarget.setAttribute("data-sort-dir", newDir);
+
   users.sort((a, b) => {
     let comparison = 0;
     if (sortKey === 'name' || sortKey === 'email') {
@@ -283,8 +302,9 @@ function handleSort(event) {
     } else {
       comparison = a[sortKey] - b[sortKey];
     }
-    return newDir === "desc" ? -comparison : comparison;
+    return newDir === "asc" ? comparison : -comparison;
   });
+
   renderTable(users);
 }
 
