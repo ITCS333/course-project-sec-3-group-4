@@ -122,14 +122,18 @@ function handleChangePassword(event) {
     alert("Password must be at least 8 characters.");
     return;
   }
-  postrequest("api/index.php?action=change_password", { current_password: currentPassword, new_password: newPassword })
+  postrequest("../api/index.php?action=change_password", { 
+    id: id, 
+    current_password: currentPassword, 
+    new_password: newPassword 
+  })
     .then(response => {
       if (response.success) {
         alert("Password updated successfully!");
         document.getElementById("current-password").value = "";
         document.getElementById("new-password").value = "";
         document.getElementById("confirm-password").value = "";
-      } 
+      }
       else {
         alert(response.message);
       }
