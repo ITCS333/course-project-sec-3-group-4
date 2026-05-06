@@ -146,7 +146,7 @@ function handleChangePassword(event) {
   document.getElementById("new-password").value = "";
   document.getElementById("confirm-password").value = "";
 
-  postrequest("api/index.php?action=change_password", {
+  postrequest("../api/index.php?action=change_password", {
     id,
     current_password: currentPassword,
     new_password: newPassword,

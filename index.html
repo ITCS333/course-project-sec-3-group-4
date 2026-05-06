@@ -6,12 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>landing page</title>
     <script defer src="script1.js"></script>
-    <style href = "styles.css"></style>
+    <link rel ="stylesheet" href="src/common/styles.css">
 </head>
 
 <body>
     <h1>Welcome to our project!</h1>
-    <div class="container" id = container></div>
+    <div class="container">
+        <div id ="guest">
+            <form action="src/auth/login.html">
+                <p>Click Here To Login</p>
+                <input type="submit" value="login">
+            </form>
+        </div>
+
+        <div id ="userview">
+            <h2 id = "welcome">welcome back</h2>
+            <div class="nav">
+                <a href="src/resources">Resources</a>
+                <a href="src/weekly">Weekly</a>
+                <a href="src/assignments">Assignments</a>
+                <a href="src/discussion">Discussion</a>
+                <a href="src/admin" id="adminLink" style="display:none;">Admin Panel</a>
+            </div>
+            <button class = "btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
 </body>
 
 </html>

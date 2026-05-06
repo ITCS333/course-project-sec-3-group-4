@@ -93,7 +93,6 @@ function isValidPassword(password) {
 function handleLogin(event) {
   // ... your implementation here ...
   event.preventDefault();
-
   const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
 
@@ -106,9 +105,9 @@ function handleLogin(event) {
   }
   if(isValidEmail(email) && isValidPassword(password)) {
   displayMessage("Login successful!", "success");
-  }
   emailInput.value = "";
-  passwordInput.value = "";
+  passwordInput.value = ""; 
+  }
 }
 
 
