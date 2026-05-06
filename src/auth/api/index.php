@@ -202,8 +202,9 @@ try {
 
         // TODO: Exit the script
         exit();
-
+    }
 }
+    
 // TODO: Catch PDO exceptions in the catch block
 // Catch PDOException type
 catch (PDOException $e) {
