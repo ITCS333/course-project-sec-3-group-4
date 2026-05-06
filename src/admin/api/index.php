@@ -107,9 +107,10 @@ function getUsers($db) {
     // TODO: If the 'search' query parameter is present, append a WHERE clause:
     //       WHERE name LIKE :search OR email LIKE :search
     //       Wrap the search term with '%' wildcards when binding.
-    if(isset($_GET['search']) && !empty($_GET['search'])) {
-        $query .= " WHERE name LIKE :search OR email LIKE :search";
-        $searchTerm = '%' . $_GET['search'] . '%';
+    $params = [];
+    if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $query .= " WHERE LOWER(name) LIKE :search OR LOWER(email) LIKE :search";
+        $params[':search'] = '%' . strtolower($_GET['search']) . '%';
     }
 
     // TODO: If the 'sort' query parameter is present and is one of the allowed
@@ -117,9 +118,10 @@ function getUsers($db) {
     //       If 'order' is 'desc', use DESC; otherwise default to ASC.
     $allowedSortFields = ['name', 'email', 'is_admin'];
     $allowedOrderValues = ['asc', 'desc'];
-    if (isset($_GET['sort']) && in_array($_GET['sort'], $allowedSortFields)) {
+    if (isset($_GET['sort']) && in_array($_GET['sort'], $allowedSortFields, true)) {
         $sortField = $_GET['sort'];
-        if (isset($_GET['order']) && in_array(strtolower($_GET['order']), $allowedOrderValues)) {
+        $sortOrder = 'ASC';
+        if (isset($_GET['order']) && in_array(strtolower($_GET['order']), $allowedOrderValues, true)) {
             $sortOrder = strtoupper($_GET['order']);
         }
         $query .= " ORDER BY $sortField $sortOrder";
