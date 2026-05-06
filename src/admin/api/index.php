@@ -127,10 +127,7 @@ function getUsers($db) {
 
     // TODO: Prepare the statement, bind any parameters, and execute.
     $stmt = $db->prepare($query);
-    if ($search) {
-        $stmt->bindValue(':search', $searchTerm, PDO::PARAM_STR);
-    }
-    $stmt->execute();
+    $stmt->execute($params);
 
     // TODO: Fetch all rows as an associative array.
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
