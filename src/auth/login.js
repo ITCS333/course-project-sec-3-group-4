@@ -93,7 +93,6 @@ function isValidPassword(password) {
 function handleLogin(event) {
   // ... your implementation here ...
   event.preventDefault();
-
   const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
 
@@ -104,12 +103,24 @@ function handleLogin(event) {
   if (!isValidPassword(password)) {
     displayMessage("Password must be at least 8 characters.", "error");
   }
+  
   if(isValidEmail(email) && isValidPassword(password)) {
-    
-  displayMessage("Login successful!", "success");
+  const loginData={email: email, password: password};
+  fetch('api/index.php', {
+    method: 'POST',
+    headers: { 'Content-type': 'application/json' } ,
+    body: JSON.stringify(loginData)})
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        displayMessage("Login successful!", "success")
+        emailInput.value = "";
+        passwordInput.value = "";
+        window.location.href = "../../index.html";
+      }
+    }) 
   }
-  emailInput.value = "";
-  passwordInput.value = "";
 }
 
 

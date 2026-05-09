@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>landing page</title>
-    <link rel ="stylesheet" href="src/common/styles.css">
+    <link rel ="stylesheet" href="style.css">
 </head>
 <body>
     <header class="hero">
@@ -15,60 +15,70 @@
             <a href="src/auth/login.html" class="button">Login Here</a>
         </div>
     </header>
-    
     <div id="userView" class="group">
         <span id="welcomeText"></span>
-    
-        <div id="studentLinks" class="inline-links">
-            <a href="src/weekly/list.html">Weekly</a>
-            <a href="src/resources/details.html">Resources</a>
-            <a href="src/assignments/details.html">Assignments</a>
-        </div>
-    
-        <a href="src/admin/manage_users.html" id="adminLink" class="admin-badge">Admin Panel</a>
-    
-        <button onclick="logout()" class="logout-btn">Logout</button>
     </div>
-    
     <main id="container">
         <section class="info-cards">
             <div class="card">
                 <h3>Weekly Tasks</h3>
+                <a href="src/weekly/details.html">Explore</a>
                 <p>See your tasks</p>
             </div>
             <div class ="card">
                 <h3>Assignments</h3>
+                <a href="src/assignments/details.html">Explore</a>
                 <p>See the assignments that your instructor upload it to you</p>
             </div>
                 <div class="card">
                 <h3>Resources</h3>
+                <a href="src/resources/details.html">Explore</a>
                 <p>Instructor resources</p>
             </div>
         </section>
     </main>
+    <div id="userView" class="group">
+    
+        <div id="studentLinks" class="inline-links" style="display: none;">
+            <a href="src/weekly/list.html">Weekly</a>
+            <a href="src/resources/list.html">Resources</a>
+            <a href="src/assignments/list.html">Assignments</a></br></br>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+        </div>
+        <div id="adminLinks" class="inline-links" style="display: none;">
+            <a href="src/weekly/admin.html">Weekly</a>
+            <a href="src/resources/admin.html">Resources</a>
+            <a href="src/assignments/admin.html">Assignments</a>
+            <a href="src/admin/manage_users.html"  class="admin-badge">Admin Panel</a></br></br>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+
+        </div>
+    </div>
+    
     <script>
         function loadUser() {
 
             const user = JSON.parse(localStorage.getItem("user"));
 
             const guestView = document.getElementById("guestView");
-            const userView = document.getElementById("userView");
+            const studentLinks = document.getElementById("studentLinks");
             const welcomeText = document.getElementById("welcomeText");
-            const adminLink = document.getElementById("adminLink");
+            const adminLinks = document.getElementById("adminLinks");
             const container = document.getElementById("container");
 
             if (user) {
-
-                guestView.style.display = "none";
-                userView.style.display = "block";
-                container.style.display = "block";
-
-                welcomeText.textContent = "Welcome " + user.name;
-
                 if (user.is_admin == 1) {
-                    adminLink.style.display = "block";
+                    welcomeText.textContent = "Welcome " + user.name;
+                    guestView.style.display = "none";
+                    adminLinks.style.display = "block";
+                    stdentLinks.style.display = "none"
+                    container.style.display = "block";
                 } else {
-                    adminLink.style.display = "none";
+                    welcomeText.textContent = "Welcome " + user.name;
+                    guestView.style.display = "none";
+                    adminLinks.style.display = "none";
+                    studentLinks.style.display ="block"
+                    container.style.display = "block";
                 }
 
             } else {
