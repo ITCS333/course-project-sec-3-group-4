@@ -92,7 +92,7 @@ if (strlen($password) < 8) {
 // TODO: Get the database connection using the provided function
 // Assume getDBConnection() returns a PDO instance with error mode set to exception
 // The function is defined elsewhere (e.g., in a config file or db.php)
-require_once '../../common/db.php';
+include '../../common/db.php';
 $db = getDBConnection();
 
 // TODO: Wrap database operations in a try-catch block to handle PDO exceptions

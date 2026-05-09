@@ -1,36 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>landing page</title>
-    <script defer src="script1.js"></script>
     <link rel ="stylesheet" href="src/common/styles.css">
 </head>
-
 <body>
-    <h1>Welcome to our project!</h1>
-    <div class="container">
-        <div id ="guest">
-            <form action="src/auth/login.html">
-                <p>Click Here To Login</p>
-                <input type="submit" value="login">
-            </form>
+    <header class="hero">
+        <h1 id="heroTitle">Empowering Your Learning Journey</h1>
+        <p id="heroSubtitle">Access your course materials, weekly tasks, and assignments updates in one place.</p>
+    
+        <div id="guestView">
+            <a href="src/auth/login.html" class="button">Login Here</a>
         </div>
-
-        <div id ="userview">
-            <h2 id = "welcome">welcome back</h2>
-            <div class="nav">
-                <a href="src/resources">Resources</a>
-                <a href="src/weekly">Weekly</a>
-                <a href="src/assignments">Assignments</a>
-                <a href="src/discussion">Discussion</a>
-                <a href="src/admin" id="adminLink" style="display:none;">Admin Panel</a>
-            </div>
-            <button class = "btn" onclick="logout()">Logout</button>
+    </header>
+    
+    <div id="userView" class="group">
+        <span id="welcomeText"></span>
+    
+        <div id="studentLinks" class="inline-links">
+            <a href="src/weekly/list.html">Weekly</a>
+            <a href="src/resources/details.html">Resources</a>
+            <a href="src/assignments/details.html">Assignments</a>
         </div>
+    
+        <a href="src/admin/manage_users.html" id="adminLink" class="admin-badge">Admin Panel</a>
+    
+        <button onclick="logout()" class="logout-btn">Logout</button>
     </div>
-</body>
+    
+    <main id="container">
+        <section class="info-cards">
+            <div class="card">
+                <h3>Weekly Tasks</h3>
+                <p>See your tasks</p>
+            </div>
+            <div class ="card">
+                <h3>Assignments</h3>
+                <p>See the assignments that your instructor upload it to you</p>
+            </div>
+                <div class="card">
+                <h3>Resources</h3>
+                <p>Instructor resources</p>
+            </div>
+        </section>
+    </main>
+    <script>
+        function loadUser() {
 
+            const user = JSON.parse(localStorage.getItem("user"));
+
+            const guestView = document.getElementById("guestView");
+            const userView = document.getElementById("userView");
+            const welcomeText = document.getElementById("welcomeText");
+            const adminLink = document.getElementById("adminLink");
+            const container = document.getElementById("container");
+
+            if (user) {
+
+                guestView.style.display = "none";
+                userView.style.display = "block";
+                container.style.display = "block";
+
+                welcomeText.textContent = "Welcome " + user.name;
+
+                if (user.is_admin == 1) {
+                    adminLink.style.display = "block";
+                } else {
+                    adminLink.style.display = "none";
+                }
+
+            } else {
+
+                guestView.style.display = "block";
+                userView.style.display = "none";
+                container.style.display = "block";
+
+            }
+        }
+
+        function logout() {
+
+            localStorage.removeItem("user");
+
+            window.location.href = "index.html";
+        }
+
+        loadUser();
+    </script>
+
+</body>
 </html>

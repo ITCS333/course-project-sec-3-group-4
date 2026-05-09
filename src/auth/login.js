@@ -104,9 +104,21 @@ function handleLogin(event) {
     displayMessage("Password must be at least 8 characters.", "error");
   }
   if(isValidEmail(email) && isValidPassword(password)) {
-  displayMessage("Login successful!", "success");
-  emailInput.value = "";
-  passwordInput.value = ""; 
+    const loginData={email: email, password: password};
+    fetch('api/index.php', {
+      method: 'POST',
+      headers: { 'Content-type': 'application/json' } ,
+      body: JSON.stringify(loginData)})
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+          displayMessage("Login successful!", "success")
+          emailInput.value = "";
+          passwordInput.value = ""; 
+          window.location.href = "../../index.html";
+        }
+      })
   }
 }
 
