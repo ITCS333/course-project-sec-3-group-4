@@ -104,7 +104,7 @@ function handleLogin(event) {
     displayMessage("Password must be at least 8 characters.", "error");
   }
   if(isValidEmail(email) && isValidPassword(password)) {
-    const loginData={email: email, password: password};
+  const loginData={email: email, password: password};
     fetch('api/index.php', {
       method: 'POST',
       headers: { 'Content-type': 'application/json' } ,
@@ -120,9 +120,9 @@ function handleLogin(event) {
           alert(data.message);
         }
       })
-    alert("all done");
-    emailInput.value = "";
-    passwordInput.value = ""; 
+  alert("all done");
+  emailInput.value = "";
+  passwordInput.value = ""; 
   }
 }
 
