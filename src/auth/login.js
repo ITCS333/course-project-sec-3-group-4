@@ -113,12 +113,16 @@ function handleLogin(event) {
       .then(data => {
         if (data.success) {
           localStorage.setItem("user", JSON.stringify(data.user));
-          displayMessage("Login successful!", "success")
-          emailInput.value = "";
-          passwordInput.value = ""; 
+
           window.location.href = "../../index.html";
+        } else {
+
+          alert(data.message);
         }
       })
+    alert("all done");
+    emailInput.value = "";
+    passwordInput.value = ""; 
   }
 }
 
