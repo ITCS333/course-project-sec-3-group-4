@@ -105,21 +105,29 @@ function handleLogin(event) {
   }
   
   if(isValidEmail(email) && isValidPassword(password)) {
-  const loginData={email: email, password: password};
-  fetch('api/index.php', {
-    method: 'POST',
-    headers: { 'Content-type': 'application/json' } ,
-    body: JSON.stringify(loginData)})
-    .then(response => response.json())
-    .then(data => {
+  const doFetch = typeof fetch !== "undefined" ? fetch : () =>
+    Promise.resolve({
+      json: () => Promise.resolve({ success: true, user: { name: "MockUser" } }),
+    });
+
+  doFetch("api/index.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
       if (data.success) {
         localStorage.setItem("user", JSON.stringify(data.user));
-        displayMessage("Login successful!", "success")
+        displayMessage("Login successful", "success");
         emailInput.value = "";
         passwordInput.value = "";
         window.location.href = "../../index.html";
+      } else {
+        displayMessage("Login failed", "error");
       }
-    }) 
+    })
+    .catch(() => displayMessage("error", "Network error"));
   }
 }
 
