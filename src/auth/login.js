@@ -61,13 +61,6 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-if (typeof fetch === "undefined") {
-  global.fetch = () =>
-    Promise.resolve({
-      json: () => Promise.resolve({ success: true, user: { name: "MockUser" } }),
-    });
-}
-
 /**
  * TODO: Implement the isValidPassword function.
  * This function takes one argument:
