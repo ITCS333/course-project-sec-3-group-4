@@ -312,10 +312,10 @@ function createAssignment(PDO $db, array $data): void
         $filesJson = json_encode($data['files']);
     }
 
-    $sql = "INSERT INTO assignments 
-            (title, description, due_date, files, created_at, updated_at)
-            VALUES 
-            (:title, :description, :due_date, :files, NOW(), NOW())";
+   $sql = "INSERT INTO assignments 
+        (title, description, due_date, files)
+        VALUES 
+        (:title, :description, :due_date, :files)";
 
     $stmt = $db->prepare($sql);
 
@@ -341,10 +341,12 @@ function createAssignment(PDO $db, array $data): void
         'files' => json_decode($filesJson, true),
     ];
 
-    sendResponse([
-        'success' => true,
-        'data' => $created
-    ], 201);
+   sendResponse([
+    'success' => true,
+    'message' => 'Assignment created successfully',
+    'id' => (int)$newId,
+    'data' => $created
+], 201);
 }
 
 /**
