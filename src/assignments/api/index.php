@@ -102,7 +102,15 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 // $id           = $_GET['id']            ?? null;  // integer assignment id
 // $assignmentId = $_GET['assignment_id'] ?? null;  // integer assignment id for comments queries
 // $commentId    = $_GET['comment_id']    ?? null;  // integer comment id
-
+$rawBody = file_get_contents('php://input');
+$data = [];
+if ($rawBody !== false && $rawBody !== '') {
+    $decoded = json_decode($rawBody, true);
+    if (is_array($decoded)) {
+        $data = $decoded;
+    }
+}
+$resource = isset($_GET['resource']) ? strtolower(trim($_GET['resource'])) : 'weeks';
 
 // ============================================================================
 // ASSIGNMENT FUNCTIONS
