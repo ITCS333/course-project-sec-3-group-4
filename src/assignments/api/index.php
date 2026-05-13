@@ -95,7 +95,7 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_GET['action'] ?? null;
 $id = $_GET['id'] ?? null;
 $assignmentId = $_GET['assignment_id'] ?? null;
-$commentId = $_GET['comment_id'] ?? null
+$commentId = $_GET['comment_id'] ?? null;
 // TODO: Read and decode the request body for POST and PUT requests.
 // $rawData = file_get_contents('php://input');
 // $data    = json_decode($rawData, true) ?? [];
@@ -828,4 +828,8 @@ function sanitizeInput(string $data): string
 {
     // TODO: return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
     return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
+}
+function validateAllowedValue(string $value, array $allowed): bool
+{
+    return in_array($value, $allowed, true);
 }
