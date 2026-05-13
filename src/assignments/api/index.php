@@ -90,7 +90,7 @@ $db = getDBConnection();
 
 // TODO: Read the HTTP request method.
 // $method = $_SERVER['REQUEST_METHOD'];
-
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 // TODO: Read and decode the request body for POST and PUT requests.
 // $rawData = file_get_contents('php://input');
