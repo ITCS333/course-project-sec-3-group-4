@@ -706,6 +706,17 @@ try {
         // no parameters → all assignments (supports ?search, ?sort, ?order)
         // TODO: else call getAllAssignments($db)
 
+        if (($action ?? '') === 'comments') {
+            $assignmentId = $_GET['assignment_id'] ?? null;
+            getCommentsByAssignment($db, $assignmentId);
+
+        } elseif (isset($_GET['id'])) {
+            getAssignmentById($db, $_GET['id']);
+
+        } else {
+            getAllAssignments($db);
+        }
+
     } elseif ($method === 'POST') {
 
         // ?action=comment → create a comment in comments_assignment
@@ -713,11 +724,18 @@ try {
 
         // no action → create a new assignment
         // TODO: else call createAssignment($db, $data)
-
+if (($action ?? '') === 'comment') {
+            createComment($db, $data);
+        } else {
+            createAssignment($db, $data);
+        }
+        
     } elseif ($method === 'PUT') {
 
         // Update an assignment; id comes from the JSON body
         // TODO: call updateAssignment($db, $data)
+
+        updateAssignment($db, $data);
 
     } elseif ($method === 'DELETE') {
 
@@ -727,17 +745,31 @@ try {
         // ?id={id} → delete an assignment (and its comments via CASCADE)
         // TODO: else call deleteAssignment($db, $id)
 
+        if (($action ?? '') === 'delete_comment') {
+            $commentId = $_GET['comment_id'] ?? null;
+            deleteComment($db, $commentId);
+        } else {
+            $id = $_GET['id'] ?? null;
+            deleteAssignment($db, $id);
+        }
+
     } else {
         // TODO: sendResponse HTTP 405 Method Not Allowed.
+        sendResponse(['error' => 'Method Not Allowed'], 405);
     }
 
 } catch (PDOException $e) {
     // TODO: Log the error with error_log().
     // Return a generic HTTP 500 — do NOT expose $e->getMessage() to clients.
-
+error_log($e->getMessage());
+    sendResponse(['error' => 'Database error'], 500);
+    
 } catch (Exception $e) {
     // TODO: Log the error with error_log().
     // Return HTTP 500 using sendResponse().
+
+    error_log($e->getMessage());
+    sendResponse(['error' => 'Server error'], 500);
 }
 
 
@@ -756,6 +788,12 @@ function sendResponse(array $data, int $statusCode = 200): void
     // TODO: http_response_code($statusCode);
     // TODO: echo json_encode($data, JSON_PRETTY_PRINT);
     // TODO: exit;
+
+    http_response_code($statusCode);
+
+    echo json_encode($data, JSON_PRETTY_PRINT);
+
+    exit;
 }
 
 
@@ -769,6 +807,10 @@ function validateDate(string $date): bool
 {
     // TODO: $d = DateTime::createFromFormat('Y-m-d', $date);
     // TODO: return $d && $d->format('Y-m-d') === $date;
+
+    $d = DateTime::createFromFormat('Y-m-d', $date);
+
+    return $d && $d->format('Y-m-d') === $date;
 }
 
 
@@ -781,4 +823,5 @@ function validateDate(string $date): bool
 function sanitizeInput(string $data): string
 {
     // TODO: return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
 }
