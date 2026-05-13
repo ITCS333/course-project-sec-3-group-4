@@ -92,6 +92,10 @@ $db = getDBConnection();
 // $method = $_SERVER['REQUEST_METHOD'];
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
+$action = $_GET['action'] ?? null;
+$id = $_GET['id'] ?? null;
+$assignmentId = $_GET['assignment_id'] ?? null;
+$commentId = $_GET['comment_id'] ?? null
 // TODO: Read and decode the request body for POST and PUT requests.
 // $rawData = file_get_contents('php://input');
 // $data    = json_decode($rawData, true) ?? [];
@@ -170,7 +174,7 @@ function getAllAssignments(PDO $db): void
     $allowedSortFields = ['title', 'due_date', 'created_at'];
     $sort = (!empty($_GET['sort']) && validateAllowedValue($_GET['sort'], $allowedSortFields))
         ? $_GET['sort']
-        : 'created_at';
+       : 'due_date';
 
     $allowedOrder = ['asc', 'desc'];
     $order = (!empty($_GET['order']) && validateAllowedValue(strtolower($_GET['order']), $allowedOrder))
@@ -197,7 +201,7 @@ function getAllAssignments(PDO $db): void
     sendResponse([
         'success' => true,
         'data' => $assignments
-    ])
+    ]);
 }
 
 
@@ -550,7 +554,7 @@ function getCommentsByAssignment(PDO $db, $assignmentId): void
     sendResponse([
         'success' => true,
         'data' => $comments
-    ])
+    ]);
 }
 
 
